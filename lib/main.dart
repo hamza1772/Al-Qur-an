@@ -1,5 +1,8 @@
-import 'package:al_quran/surahs/surah_list.dart';
+import 'package:al_quran/duas/dua_list.dart';
 import 'package:flutter/material.dart';
+
+import 'bookmarks/surah_list.dart';
+import 'juz/juz_list.dart';
 
 void main() {
   runApp(MyApp());
@@ -52,13 +55,28 @@ class _MyHomePageState extends State<MyHomePage> {
                       height: 300,
                     ),
                   ),
-                  _homepage_widgets(name: 'Surahs', asset: 'assets/surahs.png'),
-                  _homepage_widgets(name: 'Juz', asset: 'assets/juz.png'),
+                  _homepage_widgets(
+                    name: 'Surahs',
+                    asset: 'assets/surahs.png',
+                    ontap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => SurahList())),
+                  ),
+                  _homepage_widgets(
+                    name: 'Juz',
+                    asset: 'assets/juz.png',
+                    ontap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => JuzList())),
+                  ),
                   _homepage_widgets(
                       name: 'Last Read', asset: 'assets/last_read.png'),
                   _homepage_widgets(
                       name: 'Bookmarks', asset: 'assets/bookmark.png'),
-                  _homepage_widgets(name: 'Duas', asset: 'assets/kid_dua.png'),
+                  _homepage_widgets(
+                    name: 'Duas',
+                    asset: 'assets/kid_dua.png',
+                    ontap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => DuaList())),
+                  ),
                   SizedBox(
                     height: 140.0,
                   )
@@ -71,10 +89,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  GestureDetector _homepage_widgets({String name, String asset}) {
+  GestureDetector _homepage_widgets(
+      {String name, String asset, Function ontap}) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (context) => SurahList())),
+      onTap: () => ontap(),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(

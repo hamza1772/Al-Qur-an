@@ -42,33 +42,60 @@ class SurahList extends StatelessWidget {
                 );
               },
               itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  leading: Container(
-                    height: 40,
-                    width: 40,
-                    child: Stack(
-                      children: [
-                        ImageIcon(
-                          AssetImage('assets/ayyah_icon.png'),
-                          size: 40,
-                        ),
-                        Align(
-                            alignment: Alignment.center,
-                            child: Center(child: Text((index + 1).toString()))),
-                      ],
+                return GestureDetector(
+                  onTap: () {
+                    print('ddddddd');
+//                    Navigator.push(
+//                      context,
+//                      MaterialPageRoute(
+//                        builder: (context) => Surah(
+//                          surah: surahs[index].name,
+//                          number: index.toString(),
+//                        ),
+//                      ),
+//                    );
+                  },
+                  child: ListTile(
+                    leading: Container(
+                      height: 40,
+                      width: 40,
+                      child: Stack(
+                        children: [
+                          ImageIcon(
+                            AssetImage('assets/ayyah_icon.png'),
+                            size: 40,
+                          ),
+                          Align(
+                              alignment: Alignment.center,
+                              child:
+                                  Center(child: Text((index + 1).toString()))),
+                        ],
+                      ),
                     ),
-                  ),
-                  title: Text(surahs[index].name),
-                  subtitle: Text(surahs[index].type +
-                      ' - ' +
-                      surahs[index].ayyahs.toString() +
-                      " ayahs"),
-                  trailing: Text(
-                    surahs[index].nameAr,
-                    style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25.0),
+                    title: Text(surahs[index].name),
+                    subtitle: Text(surahs[index].type +
+                        ' - ' +
+                        surahs[index].ayyahs.toString() +
+                        " ayahs"),
+                    trailing: Text(
+                      surahs[index].nameAr,
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25.0),
+                    ),
+                    onTap: () {
+                      print('ddddddd');
+//                      Navigator.push(
+//                        context,
+//                        MaterialPageRoute(
+//                          builder: (context) => Surah(
+//                            surah: surahs[index].name,
+//                            number: index.toString(),
+//                          ),
+//                        ),
+//                      );
+                    },
                   ),
                 );
               },
