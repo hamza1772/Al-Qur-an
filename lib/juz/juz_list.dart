@@ -42,6 +42,7 @@ class JuzList extends StatelessWidget {
               },
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
+                  onTap: () => print('fffff'),
                   leading: Container(
                     height: 40,
                     width: 40,

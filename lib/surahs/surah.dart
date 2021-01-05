@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:al_quran/settings/settings.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/material.dart';
 
@@ -9,33 +10,51 @@ class Surah extends StatelessWidget {
 
   Surah({this.surah, this.number});
 
-  Map<String, dynamic> parseJosn(String response) {
+  List<SurahModel> parseJosn(String response) {
     if (response == null) {
-      return {};
+      return [];
     }
     final parsed = json.decode(response).cast<Map<String, dynamic>>();
-    return parsed.map<SurahModel>((json) => new SurahModel.fromJson(json));
+    return parsed
+        .map<SurahModel>((json) => new SurahModel.fromJson(json))
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    print(surah);
+    print(number);
     return Scaffold(
       appBar: AppBar(
         title: Text(surah.toString()),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Settings(),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: Container(
             child: FutureBuilder(
           future: DefaultAssetBundle.of(context)
-              .loadString('assets/quran/surah/surah_$number.json'),
+              .loadString('assets/quran/en.pretty.json'),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return CircularProgressIndicator();
-            print(snapshot.data);
+            // print(snapshot.data);
 
-            Map<String, dynamic> surah = parseJosn(snapshot.data.toString());
+            List<SurahModel> surahs = parseJosn(snapshot.data.toString())
+                .where((element) => element.surah_number == int.parse(number))
+                .toList();
+            print(surahs.length);
 
             return ListView.separated(
-              itemCount: surah['verse'].length,
+              itemCount: surahs.length,
               separatorBuilder: (context, int index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -47,13 +66,13 @@ class Surah extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
                   leading: Container(
-                    height: 40,
-                    width: 40,
+                    height: 45,
+                    width: 45,
                     child: Stack(
                       children: [
                         ImageIcon(
                           AssetImage('assets/ayyah_icon.png'),
-                          size: 40,
+                          size: 45,
                         ),
                         Align(
                             alignment: Alignment.center,
@@ -61,7 +80,18 @@ class Surah extends StatelessWidget {
                       ],
                     ),
                   ),
-                  title: Text(surah['verse']['verse_$index']),
+                  title: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      surahs[index].text,
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.green.shade900,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  subtitle: Text(surahs[index].translation),
                 );
               },
             );

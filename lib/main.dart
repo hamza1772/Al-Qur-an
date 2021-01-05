@@ -1,7 +1,7 @@
 import 'package:al_quran/duas/dua_list.dart';
+import 'package:al_quran/surahs/surah_list.dart';
 import 'package:flutter/material.dart';
 
-import 'bookmarks/surah_list.dart';
 import 'juz/juz_list.dart';
 
 void main() {

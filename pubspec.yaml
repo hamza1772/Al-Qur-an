@@ -46,18 +46,20 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/surahs.png
-    - assets/reading_quran.png
-    - assets/bookmark.png
-    - assets/kid_dua.png
-    - assets/juz.png
-    - assets/last_read.png
-    - assets/quran.png
-    - assets/ayyah_icon.png
-    - assets/quran/surah_list.json
-    - assets/quran/juz.json
-    - assets/quran/dua_list.json
-
+    - assets/
+    - assets/quran/en.pretty.json
+#  /surahs.png
+#- assets/reading_quran.png
+#- assets/bookmark.png
+#- assets/kid_dua.png
+#- assets/juz.png
+#- assets/last_read.png
+#- assets/quran.png
+#- assets/ayyah_icon.png
+#- assets/quran/surah_list.json
+#- assets/quran/juz.json
+#- assets/quran/dua_list.json
+#- assets/quran/surah
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

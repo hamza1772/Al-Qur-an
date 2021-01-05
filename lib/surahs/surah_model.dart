@@ -1,15 +1,15 @@
 class SurahModel {
-  final List<Map<String, dynamic>> verses;
-  final String name;
-  final String number;
+  final int surah_number;
+  final String text;
+  final String translation;
 
-  SurahModel({this.verses, this.name, this.number});
+  SurahModel({this.surah_number, this.text, this.translation});
 
   factory SurahModel.fromJson(Map<String, dynamic> json) {
     return new SurahModel(
-      name: json['name'] as String,
-      verses: json['verse'] as List<Map<String, dynamic>>,
-      number: json['index'] as String,
+      surah_number: json['surah_number'] as int,
+      text: json['text'] as String,
+      translation: json['translation'] as String,
     );
   }
 }
