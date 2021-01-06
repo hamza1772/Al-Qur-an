@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:al_quran/duas/juz.dart';
 import 'package:flutter/material.dart';
 
 import 'juz_model.dart';
@@ -42,7 +43,18 @@ class JuzList extends StatelessWidget {
               },
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  onTap: () => print('fffff'),
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Juz(
+                                startSurah: juz[index].startSurah,
+                                endSurah: juz[index].endSurah,
+                                startSurahNum: juz[index].startSurahNum,
+                                endSurahNum: juz[index].endSurahNum,
+                                startVerse: juz[index].startVerse.substring(6),
+                                endVerse: juz[index].endVerse.substring(6),
+                                juzNum: juz[index].juzNum,
+                              ))),
                   leading: Container(
                     height: 40,
                     width: 40,

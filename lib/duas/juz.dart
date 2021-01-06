@@ -4,11 +4,23 @@ import 'package:al_quran/settings/settings.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/material.dart';
 
-class Surah extends StatelessWidget {
-  final String surah;
-  final String number;
+class Juz extends StatelessWidget {
+  final String startSurah;
+  final String endSurah;
+  final String startSurahNum;
+  final String endSurahNum;
+  final String juzNum;
+  final String startVerse;
+  final String endVerse;
 
-  Surah({this.surah, this.number});
+  Juz(
+      {this.startSurah,
+      this.endSurah,
+      this.startSurahNum,
+      this.endSurahNum,
+      this.juzNum,
+      this.startVerse,
+      this.endVerse});
 
   List<SurahModel> parseJosn(String response) {
     if (response == null) {
@@ -22,11 +34,9 @@ class Surah extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(surah);
-    print(number);
     return Scaffold(
       appBar: AppBar(
-        title: Text(surah.toString()),
+        title: Text('Juz ' + juzNum.toString()),
         actions: [
           settingsNav(context),
         ],
@@ -55,13 +65,21 @@ class Surah extends StatelessWidget {
           .loadString('assets/quran/en.pretty.json'),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
-        // print(snapshot.data);
-
-        List<SurahModel> surahs = parseJosn(snapshot.data.toString())
-            .where((element) => element.surah_number == int.parse(number))
-            .toList();
-        print(surahs.length);
-
+        List<SurahModel> surahs =
+            parseJosn(snapshot.data.toString()).where((element) {
+          if (startSurahNum != endSurahNum) {
+            return (element.surah_number == int.parse(startSurahNum) &&
+                    element.verse_number >= int.parse(startVerse)) ||
+                element.surah_number > int.parse(startSurahNum) &&
+                    element.surah_number < int.parse(endSurahNum) ||
+                (element.verse_number <= int.parse(endVerse) &&
+                    element.surah_number == int.parse(endSurahNum));
+          } else {
+            return (element.surah_number == int.parse(startSurahNum) &&
+                element.verse_number >= int.parse(startVerse) &&
+                int.parse(endVerse) >= element.verse_number);
+          }
+        }).toList();
         return ayahs(surahs);
       },
     );
@@ -79,9 +97,7 @@ class Surah extends StatelessWidget {
         );
       },
       itemBuilder: (BuildContext context, int index) {
-        return index == 0 &&
-                surahs[index].surah_number != 1 &&
-                surahs[index].surah_number != 9
+        return index == 0 && surahs[index].surah_number != 1
             ? Column(
                 children: [basmalaTile(context), ayahTlle(index, surahs)],
               )
@@ -108,7 +124,7 @@ class Surah extends StatelessWidget {
 
   ListTile ayahTlle(int index, List<SurahModel> surahs) {
     return ListTile(
-      leading: ayahNumber(index),
+      leading: ayahNumber(surahs[index].verse_number.toString()),
       title: ayah(surahs, index),
       subtitle: Text(surahs[index].translation),
     );
@@ -116,20 +132,19 @@ class Surah extends StatelessWidget {
 
   Padding ayah(List<SurahModel> surahs, int index) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+      padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         surahs[index].text,
         textDirection: TextDirection.rtl,
         style: TextStyle(
-          fontSize: 25,
-          color: Colors.green.shade900,
-          fontFamily: 'uthmani',
-        ),
+            fontSize: 20,
+            color: Colors.green.shade900,
+            fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  Container ayahNumber(int index) {
+  Container ayahNumber(String ayahNum) {
     return Container(
       height: 45,
       width: 45,
@@ -140,8 +155,11 @@ class Surah extends StatelessWidget {
             size: 45,
           ),
           Align(
-              alignment: Alignment.center,
-              child: Center(child: Text((index + 1).toString()))),
+            alignment: Alignment.center,
+            child: Center(
+              child: Text(ayahNum),
+            ),
+          ),
         ],
       ),
     );
