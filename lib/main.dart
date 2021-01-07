@@ -1,6 +1,9 @@
 import 'package:al_quran/duas/dua_list.dart';
+import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_list.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'juz/juz_list.dart';
 
@@ -12,16 +15,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return ChangeNotifierProvider(
+      create: (context) => QuranSettings(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          // This makes the visual density adapt to the platform that you run
+          // the app on. For desktop platforms, the controls will be smaller and
+          // closer together (more dense) than on mobile platforms.
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: MyHomePage(),
       ),
-      home: MyHomePage(),
     );
   }
 }
@@ -36,6 +42,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  _getUserSettings() async {
+    var state = Provider.of<QuranSettings>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+//  await prefs.setInt('counter', counter);
+    state.setShowTranslation = prefs.getBool('showTranslation');
+    state.setArFont = prefs.getString('QuranFont');
+    state.setTranslationFont = prefs.getString('translationFont');
+    state.setArFontSize = prefs.getDouble('arFontSize');
+    state.setTranslationFontSize = prefs.getDouble('translationFontSize');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,14 +1,24 @@
 import 'dart:convert';
 
-import 'package:al_quran/settings/settings.dart';
+import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
+import '../common_widgets.dart';
 
 class Surah extends StatelessWidget {
-  final String surah;
+  final String surahEn;
+  final String surahAr;
   final String number;
+  final int ayahCount;
 
-  Surah({this.surah, this.number});
+  Surah({this.surahEn, this.number, this.surahAr, this.ayahCount});
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
 
   List<SurahModel> parseJosn(String response) {
     if (response == null) {
@@ -22,29 +32,58 @@ class Surah extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(surah);
+    print(surahEn);
     print(number);
     return Scaffold(
       appBar: AppBar(
-        title: Text(surah.toString()),
+        flexibleSpace: FlexibleSpaceBar(
+            centerTitle: true,
+            title: SafeArea(
+              child: Consumer<QuranSettings>(
+                builder: (_, state, child) {
+                  return GestureDetector(
+                    onTap: () {
+                      _showModalBottomSheet(
+                          context: context,
+                          surah: surahEn,
+                          ayahCount: ayahCount,
+                          itemScrollController: itemScrollController);
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                surahEn.toString(),
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                          Text(
+                            surahAr,
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )),
         actions: [
           settingsNav(context),
         ],
       ),
       body: Center(
         child: Container(child: buildSurah(context)),
-      ),
-    );
-  }
-
-  IconButton settingsNav(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.settings),
-      onPressed: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Settings(),
-        ),
       ),
     );
   }
@@ -62,21 +101,18 @@ class Surah extends StatelessWidget {
             .toList();
         print(surahs.length);
 
-        return ayahs(surahs);
+        return surahAyahs(surahs);
       },
     );
   }
 
-  ListView ayahs(List<SurahModel> surahs) {
-    return ListView.separated(
+  surahAyahs(List<SurahModel> surahs) {
+    return ScrollablePositionedList.separated(
       itemCount: surahs.length,
+      itemScrollController: itemScrollController,
+      itemPositionsListener: itemPositionsListener,
       separatorBuilder: (context, int index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Divider(
-            thickness: 2.0,
-          ),
-        );
+        return tileDivider();
       },
       itemBuilder: (BuildContext context, int index) {
         return index == 0 &&
@@ -89,61 +125,82 @@ class Surah extends StatelessWidget {
       },
     );
   }
+}
 
-  Padding basmalaTile(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        child: ImageIcon(
-          AssetImage(
-            'assets/quran/basmala2.png',
-          ),
-          size: 50.0,
-          color: Colors.green.shade900,
-        ),
-      ),
-    );
-  }
+class _BottomSheetContent extends StatelessWidget {
+  final String surah;
+  final int ayahCount;
+  final ItemScrollController itemScrollController;
+  _BottomSheetContent({this.surah, this.ayahCount, this.itemScrollController});
 
-  ListTile ayahTlle(int index, List<SurahModel> surahs) {
-    return ListTile(
-      leading: ayahNumber(index),
-      title: ayah(surahs, index),
-      subtitle: Text(surahs[index].translation),
-    );
-  }
-
-  Padding ayah(List<SurahModel> surahs, int index) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
-      child: Text(
-        surahs[index].text,
-        textDirection: TextDirection.rtl,
-        style: TextStyle(
-          fontSize: 25,
-          color: Colors.green.shade900,
-          fontFamily: 'uthmani',
-        ),
-      ),
-    );
-  }
-
-  Container ayahNumber(int index) {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 45,
-      width: 45,
-      child: Stack(
-        children: [
-          ImageIcon(
-            AssetImage('assets/ayyah_icon.png'),
-            size: 45,
-          ),
-          Align(
-              alignment: Alignment.center,
-              child: Center(child: Text((index + 1).toString()))),
-        ],
+      color: Colors.black45,
+      child: Container(
+        height: 300,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0))),
+        child: Column(
+          children: [
+            _bottomSheetHeader(),
+            const Divider(thickness: 1),
+            _bottomSheetAyahList(),
+          ],
+        ),
       ),
     );
   }
+
+  Container _bottomSheetHeader() {
+    return Container(
+      height: 70,
+      child: Center(
+        child: Text(
+          surah,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Expanded _bottomSheetAyahList() {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: ayahCount,
+        itemBuilder: (context, index) {
+          return ListTile(
+            onTap: () {
+              itemScrollController.jumpTo(
+                index: index,
+                //   duration: Duration(seconds: 2),
+                //curve: Curves.easeInOutCubic,
+              );
+              Navigator.pop(context);
+            },
+            title: Text('Ayah ${index + 1}'),
+          );
+        },
+      ),
+    );
+  }
+}
+
+void _showModalBottomSheet(
+    {BuildContext context,
+    String surah,
+    int ayahCount,
+    ItemScrollController itemScrollController}) {
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (context) {
+      return _BottomSheetContent(
+          surah: surah,
+          ayahCount: ayahCount,
+          itemScrollController: itemScrollController);
+    },
+  );
 }
