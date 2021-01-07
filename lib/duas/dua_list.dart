@@ -75,7 +75,10 @@ class DuaList extends StatelessWidget {
         dua[index].dua,
         textDirection: TextDirection.rtl,
         style: TextStyle(
-            color: Colors.green.shade900, fontSize: state.arFontSize ?? 20.0),
+            fontWeight: FontWeight.bold,
+            color: Colors.green.shade900,
+            fontFamily: state.arFont ?? 'uthmani',
+            fontSize: state.arFontSize ?? 23.0),
       ),
     );
   }

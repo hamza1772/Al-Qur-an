@@ -42,8 +42,9 @@ Padding ayah(List<SurahModel> surahs, int index, QuranSettings state) {
       surahs[index].text,
       textDirection: TextDirection.rtl,
       style: TextStyle(
-          fontSize: state.arFontSize ?? 20,
+          fontSize: state.arFontSize ?? 23,
           color: Colors.green.shade900,
+          fontWeight: FontWeight.bold,
           fontFamily: state.arFont ?? 'uthmani'),
     ),
   );
