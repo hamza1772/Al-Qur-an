@@ -53,30 +53,53 @@ Padding ayah(List<SurahModel> surahs, int index, QuranSettings state) {
 ayahTlle(int index, List<SurahModel> surahs) {
   return Consumer<QuranSettings>(
     builder: (_, state, child) {
-      return ListTile(
-        leading: ayahNumber(surahs[index].verse_number.toString()),
-        title: ayah(surahs, index, state),
-        subtitle: state.showTranslation == null || state.showTranslation == true
-            ? Text(surahs[index].translation)
-            : SizedBox.shrink(),
+      return Container(
+        decoration: state.paperTheme != null
+            ? BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/papers/${state.paperTheme}'),
+                    fit: BoxFit.fill),
+              )
+            : null,
+        child: ListTile(
+          leading: ayahNumber(surahs[index].verse_number.toString()),
+          title: ayah(surahs, index, state),
+          subtitle:
+              state.showTranslation == null || state.showTranslation == true
+                  ? Text(surahs[index].translation)
+                  : SizedBox.shrink(),
+        ),
       );
     },
   );
 }
 
-Padding basmalaTile(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Container(
-      width: MediaQuery.of(context).size.width,
-      child: ImageIcon(
-        AssetImage(
-          'assets/quran/basmala2.png',
+basmalaTile(BuildContext context) {
+  return Consumer<QuranSettings>(
+    builder: (_, state, child) {
+      return Container(
+        decoration: state.paperTheme != null
+            ? BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/papers/${state.paperTheme}'),
+                    fit: BoxFit.cover),
+              )
+            : null,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            child: ImageIcon(
+              AssetImage(
+                'assets/quran/basmala2.png',
+              ),
+              size: 50.0,
+              color: Colors.green.shade900,
+            ),
+          ),
         ),
-        size: 50.0,
-        color: Colors.green.shade900,
-      ),
-    ),
+      );
+    },
   );
 }
 
@@ -99,11 +122,11 @@ Container surahAndJuzListNumberIcon(int index) {
 }
 
 ListView juzAyahs(List<SurahModel> surahs) {
-  return ListView.separated(
+  return ListView.builder(
     itemCount: surahs.length,
-    separatorBuilder: (context, int index) {
-      return tileDivider();
-    },
+//    separatorBuilder: (context, int index) {
+//      return tileDivider();
+//    },
     itemBuilder: (BuildContext context, int index) {
       return index == 0 &&
               surahs[index].surah_number != 1 &&

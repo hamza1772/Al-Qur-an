@@ -4,7 +4,6 @@ import 'package:al_quran/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../common_widgets.dart';
 import 'dua_model.dart';
 
 class DuaList extends StatelessWidget {
@@ -20,12 +19,21 @@ class DuaList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Juz'),
+        title: Text('Duas'),
       ),
       body: Consumer<QuranSettings>(
         builder: (context, state, child) {
           return Center(
-            child: Container(child: duaListFutureBuilder(context, state)),
+            child: Container(
+                decoration: state.paperTheme != null
+                    ? BoxDecoration(
+                        image: DecorationImage(
+                            image:
+                                AssetImage('assets/papers/${state.paperTheme}'),
+                            fit: BoxFit.cover),
+                      )
+                    : null,
+                child: duaListFutureBuilder(context, state)),
           );
         },
       ),
@@ -43,11 +51,8 @@ class DuaList extends StatelessWidget {
 
         List<DuaModel> dua = parseJosn(snapshot.data.toString());
 
-        return ListView.separated(
+        return ListView.builder(
           itemCount: dua.length,
-          separatorBuilder: (context, int index) {
-            return tileDivider();
-          },
           itemBuilder: (BuildContext context, int index) {
             return duaTile(index, dua, state);
           },
@@ -56,15 +61,28 @@ class DuaList extends StatelessWidget {
     );
   }
 
-  ListTile duaTile(int index, List<DuaModel> dua, QuranSettings state) {
-    return ListTile(
-      leading: Container(
-        height: 40,
-        width: 40,
-        child: duaNumberIcon(index),
-      ),
-      title: duaText(dua, index, state),
-      subtitle: duaReference(dua, index),
+  duaTile(int index, List<DuaModel> dua, QuranSettings state) {
+    return Consumer<QuranSettings>(
+      builder: (_, state, child) {
+        return Container(
+          decoration: state.paperTheme != null
+              ? BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/papers/${state.paperTheme}'),
+                      fit: BoxFit.cover),
+                )
+              : null,
+          child: ListTile(
+            leading: Container(
+              height: 40,
+              width: 40,
+              child: duaNumberIcon(index),
+            ),
+            title: duaText(dua, index, state),
+            subtitle: duaReference(dua, index),
+          ),
+        );
+      },
     );
   }
 

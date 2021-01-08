@@ -49,7 +49,7 @@ class Surah extends StatelessWidget {
                           ayahCount: ayahCount,
                           itemScrollController: itemScrollController);
                     },
-                    child: SingleChildScrollView(
+                    child: FittedBox(
                       child: Column(
                         children: [
                           Row(
@@ -57,7 +57,7 @@ class Surah extends StatelessWidget {
                             children: [
                               Text(
                                 surahEn.toString(),
-                                style: TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 16),
                               ),
                               Icon(
                                 Icons.arrow_drop_down,
@@ -68,8 +68,7 @@ class Surah extends StatelessWidget {
                           Text(
                             surahAr,
                             style: TextStyle(
-                              fontSize: 14,
-                            ),
+                                fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -83,7 +82,21 @@ class Surah extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Container(child: buildSurah(context)),
+        child: Consumer<QuranSettings>(
+          builder: (_, state, child) {
+            return Container(
+              decoration: state.paperTheme != null
+                  ? BoxDecoration(
+                      image: DecorationImage(
+                          image:
+                              AssetImage('assets/papers/${state.paperTheme}'),
+                          fit: BoxFit.cover),
+                    )
+                  : null,
+              child: buildSurah(context),
+            );
+          },
+        ),
       ),
     );
   }
@@ -107,13 +120,10 @@ class Surah extends StatelessWidget {
   }
 
   surahAyahs(List<SurahModel> surahs) {
-    return ScrollablePositionedList.separated(
+    return ScrollablePositionedList.builder(
       itemCount: surahs.length,
       itemScrollController: itemScrollController,
       itemPositionsListener: itemPositionsListener,
-      separatorBuilder: (context, int index) {
-        return tileDivider();
-      },
       itemBuilder: (BuildContext context, int index) {
         return index == 0 &&
                 surahs[index].surah_number != 1 &&

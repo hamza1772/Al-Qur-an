@@ -51,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     state.setTranslationFont = prefs.getString('translationFont');
     state.setArFontSize = prefs.getDouble('arFontSize');
     state.setTranslationFontSize = prefs.getDouble('translationFontSize');
+    state.setPaperTheme = prefs.getString('paperTheme');
   }
 
   @override

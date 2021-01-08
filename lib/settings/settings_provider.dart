@@ -6,6 +6,14 @@ class QuranSettings with ChangeNotifier {
   String _translationFont;
   double _arFontSize;
   double _translationFontSize;
+  String _paperTheme;
+
+  String get paperTheme => _paperTheme;
+
+  set setPaperTheme(String value) {
+    _paperTheme = value;
+    notifyListeners();
+  }
 
   bool get showTranslation => _showTranslation;
 
