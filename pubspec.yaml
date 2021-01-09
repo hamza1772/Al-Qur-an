@@ -31,6 +31,7 @@ dependencies:
   scrollable_positioned_list: ^0.1.8
   shared_preferences: ^0.5.12+4
   provider: ^4.3.2+3
+  google_fonts: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -80,9 +81,28 @@ flutter:
     - family: amiri
       fonts:
         - asset: assets/fonts/amiri.ttf
+
+    - family: AmiriRegular
+      fonts:
+        - asset: assets/fonts/Amiri-Regular.ttf
+
+
+    - family: AmiriSlanted
+      fonts:
+        - asset: assets/fonts/Amiri-Slanted.ttf
+
+
+    - family: AmiriQuran
+      fonts:
+        - asset: assets/fonts/AmiriQuran.ttf
+
+
+
+
     - family: AmiriLetters
       fonts:
         - asset: assets/fonts/amiri-quran-letters.ttf
+
 
 
     - family: uthmani
@@ -90,13 +110,6 @@ flutter:
         - asset: assets/fonts/Uthmani.otf
 
 
-    - family: uthmanihafs
-      fonts:
-        - asset: assets/fonts/uthmanic_hafs_ver12.otf
-
-    - family: amiribold
-      fonts:
-        - asset: assets/fonts/Amiri-Bold.ttf
 
     - family: pdmssaleem
       fonts:
@@ -110,6 +123,14 @@ flutter:
     - family: droid
       fonts:
         - asset: assets/fonts/DroidNaskh.ttf
+
+
+
+
+    - family: DroidKufiRegular
+      fonts:
+        - asset: assets/fonts/DroidKufi-Regular.ttf
+
 
     - family: me
       fonts:

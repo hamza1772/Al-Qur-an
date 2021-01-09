@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:al_quran/common_widgets.dart';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'dua_model.dart';
@@ -17,13 +19,19 @@ class DuaList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Duas'),
-      ),
-      body: Consumer<QuranSettings>(
-        builder: (context, state, child) {
-          return Center(
+    return Consumer<QuranSettings>(
+      builder: (context, state, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              'Duas',
+              style: state.translationFont != null
+                  ? GoogleFonts.getFont(state.translationFont)
+                  : TextStyle(),
+            ),
+            actions: [settingsNav(context)],
+          ),
+          body: Center(
             child: Container(
                 decoration: state.paperTheme != null
                     ? BoxDecoration(
@@ -34,9 +42,9 @@ class DuaList extends StatelessWidget {
                       )
                     : null,
                 child: duaListFutureBuilder(context, state)),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -76,10 +84,10 @@ class DuaList extends StatelessWidget {
             leading: Container(
               height: 40,
               width: 40,
-              child: duaNumberIcon(index),
+              child: duaNumberIcon(index, state),
             ),
             title: duaText(dua, index, state),
-            subtitle: duaReference(dua, index),
+            subtitle: duaReference(dua, index, state),
           ),
         );
       },
@@ -101,7 +109,7 @@ class DuaList extends StatelessWidget {
     );
   }
 
-  Stack duaNumberIcon(int index) {
+  Stack duaNumberIcon(int index, state) {
     return Stack(
       children: [
         ImageIcon(
@@ -109,16 +117,28 @@ class DuaList extends StatelessWidget {
           size: 40,
         ),
         Align(
-            alignment: Alignment.center,
-            child: Center(child: Text((index + 1).toString()))),
+          alignment: Alignment.center,
+          child: Center(
+            child: Text(
+              (index + 1).toString(),
+              style: state.translationFont != null
+                  ? GoogleFonts.getFont(state.translationFont)
+                  : TextStyle(fontSize: state.translationFontSize ?? 14),
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Text duaReference(List<DuaModel> dua, int index) {
+  Text duaReference(List<DuaModel> dua, int index, QuranSettings state) {
     return Text(
       dua[index].reference,
       textDirection: TextDirection.rtl,
+      style: state.translationFont != null
+          ? GoogleFonts.getFont(state.translationFont)
+              .copyWith(fontSize: state.translationFontSize)
+          : TextStyle(fontSize: state.translationFontSize),
     );
   }
 
@@ -127,7 +147,13 @@ class DuaList extends StatelessWidget {
       children: [
         arText(dua, index, state),
         state.showTranslation == null || state.showTranslation == true
-            ? Text(dua[index].translation)
+            ? Text(
+                dua[index].translation,
+                style: state.translationFont != null
+                    ? GoogleFonts.getFont(state.translationFont)
+                        .copyWith(fontSize: state.translationFontSize)
+                    : TextStyle(fontSize: state.translationFontSize),
+              )
             : SizedBox.shrink(),
       ],
     );

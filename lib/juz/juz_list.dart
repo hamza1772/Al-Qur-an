@@ -1,7 +1,10 @@
 import 'dart:convert';
 
 import 'package:al_quran/juz/juz.dart';
+import 'package:al_quran/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../common_widgets.dart';
 import 'juz_model.dart';
@@ -22,12 +25,18 @@ class JuzList extends StatelessWidget {
         title: Text('Juz'),
       ),
       body: Center(
-        child: Container(child: juzListBuilder(context)),
+        child: Consumer<QuranSettings>(
+          builder: (_, state, child) {
+            return Container(
+              child: juzListBuilder(context, state),
+            );
+          },
+        ),
       ),
     );
   }
 
-  FutureBuilder<String> juzListBuilder(BuildContext context) {
+  FutureBuilder<String> juzListBuilder(BuildContext context, state) {
     return FutureBuilder(
       future:
           DefaultAssetBundle.of(context).loadString('assets/quran/juz.json'),
@@ -48,14 +57,15 @@ class JuzList extends StatelessWidget {
             );
           },
           itemBuilder: (BuildContext context, int index) {
-            return juzRangeTile(context, juz, index);
+            return juzRangeTile(context, juz, index, state);
           },
         );
       },
     );
   }
 
-  ListTile juzRangeTile(BuildContext context, List<JuzModel> juz, int index) {
+  ListTile juzRangeTile(BuildContext context, List<JuzModel> juz, int index,
+      QuranSettings state) {
     return ListTile(
       onTap: () => Navigator.push(
           context,
@@ -69,19 +79,29 @@ class JuzList extends StatelessWidget {
                     endVerse: juz[index].endVerse.substring(6),
                     juzNum: juz[index].juzNum,
                   ))),
-      leading: surahAndJuzListNumberIcon(index),
-      title: juzSurahRange(juz, index),
-      subtitle: juzVersesRange(juz, index),
+      leading: surahAndJuzListNumberIcon(index, state),
+      title: juzSurahRange(juz, index, state),
+      subtitle: juzVersesRange(juz, index, state),
     );
   }
 
-  Text juzVersesRange(List<JuzModel> juz, int index) {
-    return Text(' Verse ' +
-        juz[index].startVerse.substring(6) +
-        ' - Verse ' +
-        juz[index].endVerse.substring(6));
+  Text juzVersesRange(List<JuzModel> juz, int index, QuranSettings state) {
+    return Text(
+      ' Verse ' +
+          juz[index].startVerse.substring(6) +
+          ' - Verse ' +
+          juz[index].endVerse.substring(6),
+      style: state.translationFont != null
+          ? GoogleFonts.getFont(state.translationFont)
+          : TextStyle(fontSize: state.translationFontSize ?? 14),
+    );
   }
 
-  Text juzSurahRange(List<JuzModel> juz, int index) =>
-      Text(juz[index].startSurah + ' - ' + juz[index].endSurah);
+  Text juzSurahRange(List<JuzModel> juz, int index, QuranSettings state) =>
+      Text(
+        juz[index].startSurah + ' - ' + juz[index].endSurah,
+        style: state.translationFont != null
+            ? GoogleFonts.getFont(state.translationFont)
+            : TextStyle(fontSize: state.translationFontSize ?? 14),
+      );
 }

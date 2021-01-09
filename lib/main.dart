@@ -45,13 +45,18 @@ class _MyHomePageState extends State<MyHomePage> {
   _getUserSettings() async {
     var state = Provider.of<QuranSettings>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-//  await prefs.setInt('counter', counter);
-    state.setShowTranslation = prefs.getBool('showTranslation');
-    state.setArFont = prefs.getString('QuranFont');
-    state.setTranslationFont = prefs.getString('translationFont');
-    state.setArFontSize = prefs.getDouble('arFontSize');
-    state.setTranslationFontSize = prefs.getDouble('translationFontSize');
-    state.setPaperTheme = prefs.getString('paperTheme');
+    state.setShowTranslation = prefs.getBool('showTranslation') ?? true;
+    state.setArFont = prefs.getString('QuranFont') ?? 'uthmani';
+    state.setTranslationFont = prefs.getString('translationFont') ?? 'Lato';
+    state.setArFontSize = prefs.getDouble('arFontSize') ?? 22;
+    state.setTranslationFontSize = prefs.getDouble('translationFontSize') ?? 14;
+    state.setPaperTheme = prefs.getString('paperTheme') ?? null;
+  }
+
+  @override
+  void initState() {
+    _getUserSettings();
+    super.initState();
   }
 
   @override

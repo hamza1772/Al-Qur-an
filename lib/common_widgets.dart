@@ -3,6 +3,7 @@ import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 Padding tileDivider() {
@@ -14,7 +15,7 @@ Padding tileDivider() {
   );
 }
 
-Container ayahNumber(String ayahNum) {
+Container ayahNumber(String ayahNum, QuranSettings state) {
   return Container(
     height: 45,
     width: 45,
@@ -27,7 +28,12 @@ Container ayahNumber(String ayahNum) {
         Align(
           alignment: Alignment.center,
           child: Center(
-            child: Text(ayahNum),
+            child: Text(
+              ayahNum,
+              style: state.translationFont != null
+                  ? GoogleFonts.getFont(state.translationFont)
+                  : TextStyle(),
+            ),
           ),
         ),
       ],
@@ -62,11 +68,17 @@ ayahTlle(int index, List<SurahModel> surahs) {
               )
             : null,
         child: ListTile(
-          leading: ayahNumber(surahs[index].verse_number.toString()),
+          leading: ayahNumber(surahs[index].verse_number.toString(), state),
           title: ayah(surahs, index, state),
           subtitle:
               state.showTranslation == null || state.showTranslation == true
-                  ? Text(surahs[index].translation)
+                  ? Text(
+                      surahs[index].translation,
+                      style: state.translationFont != null
+                          ? GoogleFonts.getFont(state.translationFont)
+                              .copyWith(fontSize: state.translationFontSize)
+                          : TextStyle(fontSize: state.translationFontSize),
+                    )
                   : SizedBox.shrink(),
         ),
       );
@@ -103,7 +115,7 @@ basmalaTile(BuildContext context) {
   );
 }
 
-Container surahAndJuzListNumberIcon(int index) {
+Container surahAndJuzListNumberIcon(int index, QuranSettings state) {
   return Container(
     height: 40,
     width: 40,
@@ -114,8 +126,16 @@ Container surahAndJuzListNumberIcon(int index) {
           size: 40,
         ),
         Align(
-            alignment: Alignment.center,
-            child: Center(child: Text((index + 1).toString()))),
+          alignment: Alignment.center,
+          child: Center(
+            child: Text(
+              (index + 1).toString(),
+              style: state.translationFont != null
+                  ? GoogleFonts.getFont(state.translationFont)
+                  : TextStyle(fontSize: state.translationFontSize ?? 14),
+            ),
+          ),
+        ),
       ],
     ),
   );

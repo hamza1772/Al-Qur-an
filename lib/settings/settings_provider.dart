@@ -29,7 +29,7 @@ class QuranSettings with ChangeNotifier {
     notifyListeners();
   }
 
-  String get arFont => _arFont;
+  get arFont => _arFont;
 
   set setArFont(String valueString) {
     _arFont = valueString;

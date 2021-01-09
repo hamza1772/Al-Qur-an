@@ -5,6 +5,7 @@ import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah.dart';
 import 'package:al_quran/surahs/surahs_model.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class SurahList extends StatelessWidget {
@@ -74,10 +75,19 @@ class SurahList extends StatelessWidget {
                     surahAr: surahs[index].nameAr,
                     ayahCount: surahs[index].ayyahs,
                   ))),
-      leading: surahAndJuzListNumberIcon(index),
-      title: Text(surahs[index].name),
-      subtitle: ayahCount(surahs, index),
+      leading: surahAndJuzListNumberIcon(index, state),
+      title: surahEnName(surahs, index, state),
+      subtitle: ayahCount(surahs, index, state),
       trailing: surahArName(surahs, index, state),
+    );
+  }
+
+  Text surahEnName(List<SurahsModel> surahs, int index, QuranSettings state) {
+    return Text(
+      surahs[index].name,
+      style: state.translationFont != null
+          ? GoogleFonts.getFont(state.translationFont)
+          : TextStyle(fontSize: state.translationFontSize ?? 14),
     );
   }
 
@@ -93,10 +103,12 @@ class SurahList extends StatelessWidget {
     );
   }
 
-  Text ayahCount(List<SurahsModel> surahs, int index) {
-    return Text(surahs[index].type +
-        ' - ' +
-        surahs[index].ayyahs.toString() +
-        " ayahs");
+  Text ayahCount(List<SurahsModel> surahs, int index, QuranSettings state) {
+    return Text(
+      surahs[index].type + ' - ' + surahs[index].ayyahs.toString() + " ayahs",
+      style: state.translationFont != null
+          ? GoogleFonts.getFont(state.translationFont)
+          : TextStyle(fontSize: state.translationFontSize ?? 14),
+    );
   }
 }

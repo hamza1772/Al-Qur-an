@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -36,47 +37,8 @@ class Surah extends StatelessWidget {
     print(number);
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: FlexibleSpaceBar(
-            centerTitle: true,
-            title: SafeArea(
-              child: Consumer<QuranSettings>(
-                builder: (_, state, child) {
-                  return GestureDetector(
-                    onTap: () {
-                      _showModalBottomSheet(
-                          context: context,
-                          surah: surahEn,
-                          ayahCount: ayahCount,
-                          itemScrollController: itemScrollController);
-                    },
-                    child: FittedBox(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                surahEn.toString(),
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            surahAr,
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )),
+        flexibleSpace:
+            FlexibleSpaceBar(centerTitle: true, title: _surahAppbar(context)),
         actions: [
           settingsNav(context),
         ],
@@ -98,6 +60,61 @@ class Surah extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  SafeArea _surahAppbar(BuildContext context) {
+    return SafeArea(
+      child: Consumer<QuranSettings>(
+        builder: (_, state, child) {
+          return GestureDetector(
+            onTap: () {
+              _showModalBottomSheet(
+                  context: context,
+                  surah: surahEn,
+                  ayahCount: ayahCount,
+                  itemScrollController: itemScrollController);
+            },
+            child: _appbarSurahName(state),
+          );
+        },
+      ),
+    );
+  }
+
+  FittedBox _appbarSurahName(QuranSettings state) {
+    return FittedBox(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _appbarSurahEnName(state),
+              Icon(
+                Icons.arrow_drop_down,
+                color: Colors.white,
+              ),
+            ],
+          ),
+          _appBarSurahArName(),
+        ],
+      ),
+    );
+  }
+
+  Text _appbarSurahEnName(QuranSettings state) {
+    return Text(
+      surahEn.toString(),
+      style: state.translationFont != null
+          ? GoogleFonts.getFont(state.translationFont)
+          : TextStyle(fontSize: state.translationFontSize ?? 16),
+    );
+  }
+
+  Text _appBarSurahArName() {
+    return Text(
+      surahAr,
+      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     );
   }
 
