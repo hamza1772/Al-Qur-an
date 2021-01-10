@@ -15,7 +15,7 @@ Padding tileDivider() {
   );
 }
 
-Container ayahNumber(String ayahNum, QuranSettings state) {
+ayahNumber(String ayahNum, QuranSettings state) {
   return Container(
     height: 45,
     width: 45,

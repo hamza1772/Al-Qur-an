@@ -90,10 +90,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     ontap: () => Navigator.push(context,
                         MaterialPageRoute(builder: (context) => JuzList())),
                   ),
-                  _homepage_widgets(
-                      name: 'Last Read', asset: 'assets/last_read.png'),
-                  _homepage_widgets(
-                      name: 'Bookmarks', asset: 'assets/bookmark.png'),
+//TODO
+//                  _homepage_widgets(
+//                      name: 'Last Read', asset: 'assets/last_read.png'),
+//                  _homepage_widgets(
+//                    name: 'Bookmarks',
+//                    asset: 'assets/bookmark.png',
+//                    ontap: () => Navigator.push(context,
+//                        MaterialPageRoute(builder: (context) => Bookmarks())),
+//                  ),
                   _homepage_widgets(
                     name: 'Duas',
                     asset: 'assets/kid_dua.png',

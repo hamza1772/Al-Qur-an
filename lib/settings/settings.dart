@@ -25,7 +25,7 @@ class _SettingsState extends State<Settings> {
             height: size.height,
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Consumer<QuranSettings>(
                 builder: (_, state, child) {
                   return SingleChildScrollView(
@@ -327,8 +327,7 @@ class _SettingsState extends State<Settings> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _settingHeaders('Themes'),
-        Text(
-            'Note: Using old paper themes might affect scroll performance and consume more memory'),
+        _paperThemeNote(),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -358,10 +357,21 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  Text _settingHeaders(String header) {
-    return Text(
-      header,
-      style: TextStyle(fontWeight: FontWeight.bold),
+  Padding _paperThemeNote() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Text(
+          'Note: Using old paper themes might affect scroll performance and consume more memory'),
+    );
+  }
+
+  _settingHeaders(String header) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+      child: Text(
+        header,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
 

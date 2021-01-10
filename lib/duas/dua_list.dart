@@ -55,7 +55,6 @@ class DuaList extends StatelessWidget {
           .loadString('assets/quran/dua_list.json'),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
-        print(snapshot.data);
 
         List<DuaModel> dua = parseJosn(snapshot.data.toString());
 

@@ -33,8 +33,6 @@ class Surah extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(surahEn);
-    print(number);
     return Scaffold(
       appBar: AppBar(
         flexibleSpace:
@@ -124,12 +122,10 @@ class Surah extends StatelessWidget {
           .loadString('assets/quran/en.pretty.json'),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
-        // print(snapshot.data);
 
         List<SurahModel> surahs = parseJosn(snapshot.data.toString())
             .where((element) => element.surah_number == int.parse(number))
             .toList();
-        print(surahs.length);
 
         return surahAyahs(surahs);
       },

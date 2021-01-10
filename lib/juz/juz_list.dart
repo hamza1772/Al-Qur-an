@@ -42,7 +42,6 @@ class JuzList extends StatelessWidget {
           DefaultAssetBundle.of(context).loadString('assets/quran/juz.json'),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
-        print(snapshot.data);
 
         List<JuzModel> juz = parseJosn(snapshot.data.toString());
 
