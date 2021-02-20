@@ -11,6 +11,7 @@ Padding tileDivider() {
     padding: const EdgeInsets.symmetric(horizontal: 10.0),
     child: Divider(
       thickness: 2.0,
+      // thikness
     ),
   );
 }
