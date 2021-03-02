@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 class SearchTest extends StatelessWidget {
   List<SurahsModel> parseJosn(String response) {
     if (response == null) {
+      //
       return [];
     }
     final parsed = json.decode(response).cast<Map<String, dynamic>>();
