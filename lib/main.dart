@@ -1,6 +1,7 @@
+import 'package:al_quran/SearchTest.dart';
 import 'package:al_quran/duas/dua_list.dart';
+import 'package:al_quran/recitationAndTranslation/recitation_provider.dart';
 import 'package:al_quran/settings/settings_provider.dart';
-import 'package:al_quran/surahs/surah_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,8 +16,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => QuranSettings(),
+    return MultiProvider(
+      // create: (context) => QuranSettings(),
+      providers: [
+        ChangeNotifierProvider<QuranSettings>(
+          create: (context) => QuranSettings(),
+        ),
+        ChangeNotifierProvider<RecitationProvider>(
+          create: (context) => RecitationProvider(),
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -44,6 +53,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   _getUserSettings() async {
     var state = Provider.of<QuranSettings>(context, listen: false);
+    var provider = Provider.of<RecitationProvider>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     state.setShowTranslation = prefs.getBool('showTranslation') ?? true;
     state.setArFont = prefs.getString('QuranFont') ?? 'uthmani';
@@ -51,6 +61,8 @@ class _MyHomePageState extends State<MyHomePage> {
     state.setArFontSize = prefs.getDouble('arFontSize') ?? 22;
     state.setTranslationFontSize = prefs.getDouble('translationFontSize') ?? 14;
     state.setPaperTheme = prefs.getString('paperTheme') ?? null;
+    provider.setTranslationIdentifier =
+        prefs.getString('translationIdentifier') ?? "en.ahmedali";
   }
 
   @override
@@ -82,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     name: 'Surahs',
                     asset: 'assets/surahs.png',
                     ontap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SurahList())),
+                        MaterialPageRoute(builder: (context) => SearchTest())),
                   ),
                   _homepage_widgets(
                     name: 'Juz',

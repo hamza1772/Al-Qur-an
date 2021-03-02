@@ -29,3 +29,18 @@ setPaperTheme(String theme) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('paperTheme', theme);
 }
+
+setTranslationIdentifier(String identifier) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('translationIdentifier', identifier);
+}
+
+setTranslationDirection(String direction) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('translationDirection', direction);
+}
+
+getTranslationDirection() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('translationDirection') ?? "rtl";
+}
