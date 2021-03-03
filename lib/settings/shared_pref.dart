@@ -39,8 +39,3 @@ setTranslationDirection(String direction) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('translationDirection', direction);
 }
-
-getTranslationDirection() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('translationDirection') ?? "rtl";
-}

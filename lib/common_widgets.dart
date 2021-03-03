@@ -1,7 +1,6 @@
 import 'package:al_quran/recitationAndTranslation/recitation_settings.dart';
 import 'package:al_quran/settings/settings.dart';
 import 'package:al_quran/settings/settings_provider.dart';
-import 'package:al_quran/settings/shared_pref.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -83,9 +82,12 @@ ayahTlle(int index, List<SurahModel> surahs) {
                           : TextStyle(
                               fontSize: state.translationFontSize,
                             ),
-                      textDirection: getTranslationDirection() == "rtl"
+                      textDirection: surahs[index].translationDirection == "rtl"
                           ? TextDirection.rtl
                           : TextDirection.ltr,
+                      /*textDirection: getTranslationDirection() == "rtl"
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,*/
                     )
                   : SizedBox.shrink(),
         ),

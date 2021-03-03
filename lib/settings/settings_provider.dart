@@ -66,7 +66,6 @@ class QuranSettings with ChangeNotifier {
 
   set setSurahsModelList(List<SurahsModel> value) {
     _surahsList = value;
-    // notifyListeners();
   }
 
   List<SurahsModel> _searchResult = [];

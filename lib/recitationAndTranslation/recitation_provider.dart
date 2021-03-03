@@ -46,4 +46,13 @@ class RecitationProvider with ChangeNotifier {
     _translationIdentifier = val;
     notifyListeners();
   }
+
+  bool _isLoading = false;
+
+  get getLoadingState => _isLoading;
+
+  set setLoadingState(bool val) {
+    _isLoading = val;
+    notifyListeners();
+  }
 }

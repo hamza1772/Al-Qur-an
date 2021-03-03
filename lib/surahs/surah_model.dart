@@ -4,13 +4,15 @@ class SurahModel {
   final String text;
   String translation;
   String audio;
+  String translationDirection;
 
   SurahModel(
       {this.surah_number,
       this.verse_number,
       this.text,
       this.translation,
-      this.audio});
+      this.audio,
+      this.translationDirection});
 
   factory SurahModel.fromJson(Map<String, dynamic> json) {
     return new SurahModel(

@@ -1,10 +1,16 @@
-import 'package:al_quran/SearchTest.dart';
+import 'dart:async';
+import 'dart:io';
+
 import 'package:al_quran/duas/dua_list.dart';
 import 'package:al_quran/recitationAndTranslation/recitation_provider.dart';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'file:///E:/FlutterProjects/Al-Qur-an/lib/surahs/surah_list.dart';
 
 import 'juz/juz_list.dart';
 
@@ -28,14 +34,20 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.system,
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          accentColor: Colors.white,
+        ),
         theme: ThemeData(
+          brightness: Brightness.light,
           primarySwatch: Colors.green,
           // This makes the visual density adapt to the platform that you run
           // the app on. For desktop platforms, the controls will be smaller and
           // closer together (more dense) than on mobile platforms.
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MyHomePage(),
+        home: SplashScreen(),
       ),
     );
   }
@@ -85,16 +97,19 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   Center(
-                    child: Image(
-                      image: AssetImage('assets/quran.png'),
-                      height: 300,
+                    child: Hero(
+                      tag: "logo",
+                      child: Image(
+                        image: AssetImage('assets/quran.png'),
+                        height: 300,
+                      ),
                     ),
                   ),
                   _homepage_widgets(
                     name: 'Surahs',
                     asset: 'assets/surahs.png',
                     ontap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SearchTest())),
+                        MaterialPageRoute(builder: (context) => SurahList())),
                   ),
                   _homepage_widgets(
                     name: 'Juz',
@@ -138,7 +153,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           height: 100.0,
           decoration: BoxDecoration(
-            color: Colors.green,
+            // color: Colors.green,
+            color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Row(
@@ -163,5 +179,99 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  bool fileLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _waitFunction();
+    // _fileAlreadyDownloaded("ar.alafasy");
+    // _fileAlreadyDownloaded("en.ahmedali");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: Center(
+          child: Hero(
+            tag: "logo",
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image(
+                  image: AssetImage('assets/quran.png'),
+                  height: 300,
+                ),
+                Text(
+                  "Al-Qur-an",
+                  style: TextStyle(fontSize: 24),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ),
+                Visibility(
+                  visible: fileLoading,
+                  child: Text(
+                    "Getting files ready. Please wait",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _waitFunction() async {
+    await downloadTranslation("ar.alafasy");
+    await downloadTranslation("en.ahmedali");
+    openHomeScreen();
+  }
+
+  Future _fileAlreadyDownloaded(String identifier) async {
+    final Directory directory = await getExternalStorageDirectory();
+    final File file = File('${directory.path}/$identifier.json');
+    return await file.exists();
+  }
+
+  Future<File> downloadTranslation(String identifier) async {
+    if (!await _fileAlreadyDownloaded(identifier)) {
+      setState(() {
+        fileLoading = true;
+      });
+      var response =
+          await http.get("http://api.alquran.cloud/v1/quran/$identifier");
+      if (response.statusCode == 200) {
+        final Directory directory = await getExternalStorageDirectory();
+        final File file = File('${directory.path}/$identifier.json');
+        return await file.writeAsString(response.body);
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+      }
+    }
+  }
+
+  openHomeScreen() {
+    setState(() {
+      fileLoading = false;
+    });
+    Timer(
+        Duration(seconds: 2),
+        () => Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (BuildContext context) => MyHomePage())));
   }
 }

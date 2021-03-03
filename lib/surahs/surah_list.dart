@@ -19,21 +19,107 @@ class SurahList extends StatelessWidget {
         .toList();
   }
 
+  TextEditingController _searchQueryController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Surahs'),
-      ),
-      body: Center(
-        child: Consumer<QuranSettings>(
-          builder: (_, state, child) {
-            return Container(child: surahListBuilder(context, state));
-          },
-        ),
-      ),
+    return Consumer<QuranSettings>(
+      builder: (BuildContext context, state, Widget child) {
+        return Scaffold(
+          appBar: AppBar(
+            leading: BackButton(),
+            title:
+                state.isSearching ? _buildSearchField(state) : Text("Surahs"),
+            actions: _buildActions(state, context),
+          ),
+          body:
+              Center(child: Container(child: surahListBuilder(context, state))),
+        );
+      },
     );
   }
+
+  Widget _buildSearchField(QuranSettings state) {
+    return TextField(
+      controller: _searchQueryController,
+      autofocus: true,
+      decoration: InputDecoration(
+        hintText: "Search...",
+        border: InputBorder.none,
+        hintStyle: TextStyle(color: Colors.white30),
+      ),
+      style: TextStyle(color: Colors.white, fontSize: 16.0),
+      onChanged: (query) => updateSearchQuery(query, state),
+    );
+  }
+
+  List<Widget> _buildActions(QuranSettings state, BuildContext context) {
+    if (state.isSearching) {
+      return <Widget>[
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            if (_searchQueryController == null ||
+                _searchQueryController.text.isEmpty) {
+              Navigator.pop(context);
+              return;
+            }
+            _clearSearchQuery(state);
+          },
+        ),
+      ];
+    }
+
+    return <Widget>[
+      IconButton(
+        icon: const Icon(Icons.search),
+        onPressed: () => _startSearch(state, context),
+      ),
+      settingsNav(context),
+    ];
+  }
+
+  void _startSearch(QuranSettings state, BuildContext context) {
+    ModalRoute.of(context).addLocalHistoryEntry(
+        LocalHistoryEntry(onRemove: () => _stopSearching(state)));
+
+    state.setIsSearching = true;
+  }
+
+  void updateSearchQuery(String newQuery, QuranSettings state) {
+    // if (newQuery.isNotEmpty) {}
+
+    state.clearSearchResult();
+
+    if (newQuery.isEmpty) {
+      return;
+    }
+
+    state.getSurahsModelList.forEach((userDetail) {
+      if (userDetail.name.toLowerCase().contains(newQuery.toLowerCase()) ||
+          userDetail.nameAr.toLowerCase().contains(newQuery.toLowerCase())) {
+        state.setSearchResult(userDetail);
+      }
+    });
+
+    if (state.getSearchResult.isEmpty) {
+      state.clearSearchResult();
+    }
+  }
+
+  void _stopSearching(QuranSettings state) {
+    _clearSearchQuery(state);
+    state.setIsSearching = false;
+  }
+
+  void _clearSearchQuery(QuranSettings state) {
+    _searchQueryController.clear();
+    updateSearchQuery("", state);
+  }
+
+  // List<SurahsModel> surahs;
+
+  // old
 
   FutureBuilder<String> surahListBuilder(
       BuildContext context, QuranSettings state) {
@@ -43,22 +129,40 @@ class SurahList extends StatelessWidget {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
 
-        List<SurahsModel> surahs = parseJosn(snapshot.data.toString());
+        state.setSurahsModelList = parseJosn(snapshot.data.toString());
 
-        return ListView.separated(
-          itemCount: surahs.length,
-          separatorBuilder: (context, int index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Divider(
-                thickness: 2.0,
-              ),
-            );
-          },
-          itemBuilder: (BuildContext context, int index) {
-            return surahListTiles(context, surahs, index, state);
-          },
-        );
+        return state.getSearchResult.length < 1 &&
+                _searchQueryController.text.isEmpty
+            ? ListView.separated(
+                itemCount: state.getSurahsModelList.length,
+                separatorBuilder: (context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Divider(
+                      thickness: 2.0,
+                    ),
+                  );
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  return surahListTiles(
+                      context, state.getSurahsModelList, index, state);
+                },
+              )
+            : ListView.separated(
+                itemCount: state.getSearchResult.length,
+                separatorBuilder: (context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Divider(
+                      thickness: 2.0,
+                    ),
+                  );
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  return surahListTiles(
+                      context, state.getSearchResult, index, state);
+                },
+              );
       },
     );
   }
@@ -66,16 +170,20 @@ class SurahList extends StatelessWidget {
   ListTile surahListTiles(BuildContext context, List<SurahsModel> surahs,
       int index, QuranSettings state) {
     return ListTile(
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Surah(
-                    surahEn: surahs[index].name,
-                    number: (index + 1).toString(),
-                    surahAr: surahs[index].nameAr,
-                    ayahCount: surahs[index].ayyahs,
-                  ))),
-      leading: surahAndJuzListNumberIcon(index, state),
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Surah(
+                      surahEn: surahs[index].name,
+                      // number: (index + 1).toString(),
+                      number: int.parse(surahs[index].number).toString(),
+                      surahAr: surahs[index].nameAr,
+                      ayahCount: surahs[index].ayyahs,
+                    )));
+      },
+      leading:
+          surahAndJuzListNumberIcon(int.parse(surahs[index].number) - 1, state),
       title: surahEnName(surahs, index, state),
       subtitle: ayahCount(surahs, index, state),
       trailing: surahArName(surahs, index, state),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:al_quran/recitationAndTranslation/recitation_settings.dart';
 import 'package:al_quran/settings/settings_provider.dart';
@@ -7,7 +8,7 @@ import 'package:al_quran/surahs/surah_model.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,15 +35,15 @@ class _SurahState extends State<Surah> {
   // mine
 
   PlayerMode mode;
-  List<Ayahs> ayahsList = null;
+  List<Ayahs> ayahsList;
 
   AudioPlayer _audioPlayer;
-  AudioPlayerState _audioPlayerState;
   Duration _duration;
   Duration _position;
 
   PlayerState _playerState = PlayerState.stopped;
-  PlayingRouteState _playingRouteState = PlayingRouteState.speakers;
+
+  // PlayingRouteState _playingRouteState = PlayingRouteState.speakers;
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
@@ -58,8 +59,8 @@ class _SurahState extends State<Surah> {
 
   get _positionText => _position?.toString()?.split('.')?.first ?? '';
 
-  get _isPlayingThroughEarpiece =>
-      _playingRouteState == PlayingRouteState.earpiece;
+  // get _isPlayingThroughEarpiece =>
+  //     _playingRouteState == PlayingRouteState.earpiece;
 
   Future myFuture;
 
@@ -83,31 +84,6 @@ class _SurahState extends State<Surah> {
     super.dispose();
   }
 
-  // @override
-  // void didUpdateWidget(Widget oldWidget) {
-  //   if (oldWidget.future != myFuture) {
-  //     if (_activeCallbackIdentity != null) {
-  //       _unsubscribe();
-  //       // Snapshot state is reset here
-  //       _snapshot = _snapshot.inState(ConnectionState.none);
-  //     }
-  //     _subscribe();
-  //   }
-  // }
-
-  /*@override
-  void didUpdateWidget(FutureBuilder<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.future != widget.future) {
-      if (_activeCallbackIdentity != null) {
-        _unsubscribe();
-        // Snapshot state is reset here
-        _snapshot = _snapshot.inState(ConnectionState.none);
-      }
-      _subscribe();
-    }
-  }*/
-
   Widget PlayerWidget() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -126,27 +102,23 @@ class _SurahState extends State<Surah> {
             IconButton(
               key: Key('play_button'),
               onPressed: _isPlaying ? null : () => _play(),
-              // iconSize: 64.0,
               icon: Icon(Icons.play_arrow),
               color: Colors.cyan,
             ),
             IconButton(
               key: Key('pause_button'),
               onPressed: _isPlaying ? () => _pause() : null,
-              // iconSize: 64.0,
               icon: Icon(Icons.pause),
               color: Colors.cyan,
             ),
             IconButton(
               key: Key('stop_button'),
               onPressed: _isPlaying || _isPaused ? () => _stop() : null,
-              // iconSize: 64.0,
               icon: Icon(Icons.stop),
               color: Colors.cyan,
             ),
             IconButton(
               key: Key('next_button'),
-              // onPressed: _isPlaying || _isPaused ? () => _stop() : null,
               onPressed: () => _next(),
               icon: Icon(Icons.skip_next),
               color: Colors.cyan,
@@ -156,7 +128,6 @@ class _SurahState extends State<Surah> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
-            // mainAxisSize: MainAxisSize.max,
             children: [
               Text(
                 _position != null
@@ -164,15 +135,11 @@ class _SurahState extends State<Surah> {
                     : _duration != null
                         ? _durationText
                         : '',
-                // style: TextStyle(backgroundColor: Colors.red),
               ),
               Expanded(
                 child: SliderTheme(
                   data: SliderThemeData(
-                    trackHeight:
-                        5, //<------Change this number here to change the height----
-                    // thumbShape:
-                    //     RoundSliderThumbShape(enabledThumbRadius: 0.0),
+                    trackHeight: 5,
                   ),
                   child: Slider(
                     onChanged: (v) {
@@ -195,12 +162,10 @@ class _SurahState extends State<Surah> {
                     : _duration != null
                         ? _durationText
                         : '',
-                // style: TextStyle(fontSize: 24.0),
               ),
             ],
           ),
         ),
-        // Text('State: $_audioPlayerState')
       ],
     );
   }
@@ -213,17 +178,11 @@ class _SurahState extends State<Surah> {
 
       // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {
-        // (Optional) listen for notification updates in the background
         _audioPlayer.startHeadlessService();
-
-        // set at least title to see the notification bar on ios.
         _audioPlayer.setNotification(
           title: 'Al-Qur-an',
           artist: 'Al-Qur-an',
           albumTitle: 'Al-Qur-an',
-          // imageUrl: '',
-          // forwardSkipInterval: const Duration(seconds: 30), // default is 30s
-          // backwardSkipInterval: const Duration(seconds: 30), // default is 30s
           duration: duration,
           elapsedTime: Duration(seconds: 0),
           hasNextTrack: true,
@@ -259,7 +218,7 @@ class _SurahState extends State<Surah> {
       print('command');
     });
 
-    _audioPlayer.onPlayerStateChanged.listen((state) {
+    /*_audioPlayer.onPlayerStateChanged.listen((state) {
       if (!mounted) return;
       setState(() {
         _audioPlayerState = state;
@@ -269,21 +228,18 @@ class _SurahState extends State<Surah> {
     _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
       if (!mounted) return;
       setState(() => _audioPlayerState = state);
-    });
+    });*/
 
-    _playingRouteState = PlayingRouteState.speakers;
+    // _playingRouteState = PlayingRouteState.speakers;
   }
 
   int currentIndex = 0;
 
   Future<String> _next() async {
-//    5 > 5
     if (ayahsList.length > currentIndex + 1) {
       itemScrollController.jumpTo(
         index: currentIndex + 1,
       );
-      /*itemScrollController.scrollTo(
-          index: currentIndex + 1, duration: Duration(seconds: 1));*/
       final result = await _audioPlayer.stop();
       if (result == 1) {
         setState(() async {
@@ -312,8 +268,6 @@ class _SurahState extends State<Surah> {
   Future<String> _previous() async {
     if (currentIndex != 0) {
       itemScrollController.jumpTo(index: currentIndex - 1);
-      /*itemScrollController.scrollTo(
-          index: currentIndex - 1, duration: Duration(seconds: 1));*/
       final result = await _audioPlayer.stop();
       if (result == 1) {
         setState(() async {
@@ -377,7 +331,6 @@ class _SurahState extends State<Surah> {
     _next();
   }
 
-  // old
   final ItemScrollController itemScrollController = ItemScrollController();
 
   final ItemPositionsListener itemPositionsListener =
@@ -400,7 +353,6 @@ class _SurahState extends State<Surah> {
         flexibleSpace:
             FlexibleSpaceBar(centerTitle: true, title: _surahAppbar(context)),
         actions: [
-          // recitationTranslationNav(context),
           IconButton(
             icon: Icon(Icons.menu_book_rounded),
             onPressed: () => Navigator.push(
@@ -409,10 +361,6 @@ class _SurahState extends State<Surah> {
                 builder: (context) => RecitationSetting(),
               ),
             ).then((value) async {
-              /*setState(() {
-                myFuture = null;
-              });*/
-
               if (identifier != null) {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 var variable =
@@ -424,7 +372,6 @@ class _SurahState extends State<Surah> {
                   });
                 }
               }
-              // buildSurah(context);
             }),
           ),
           settingsNav(context),
@@ -540,25 +487,28 @@ class _SurahState extends State<Surah> {
     return value.ayahs;
   }
 
+  var translationDir = "ltr";
+
   Future<String> getSurah(var context) async {
-    // var response = await http.get("http://api.alquran.cloud/v1/quran/en.asad");
-    // var response = await http.get("http://api.alquran.cloud/v1/quran/ur.khan");
-    var response =
-        await http.get("http://api.alquran.cloud/v1/quran/ar.alafasy");
-    if (response.statusCode == 200) {
-      print("112233 here00");
-      ayahsList = parseUrlJosn(response.body);
+    var recitationResponse = await _readIdentifier("ar.alafasy");
+    ayahsList = parseUrlJosn(recitationResponse);
+    translationDir = await getTranslationDirection();
+    translationList = await getTranslation();
+    setState(() {});
+    return await DefaultAssetBundle.of(context)
+        .loadString('assets/quran/en.pretty.json');
+  }
 
-      print("112233 here99");
-      translationList = await getTranslation();
-      setState(() {});
-      print("112233 here88");
-
-      return await DefaultAssetBundle.of(context)
-          .loadString('assets/quran/en.pretty.json');
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
+  Future<String> _readIdentifier(String identifier) async {
+    String text;
+    try {
+      final Directory directory = await getExternalStorageDirectory();
+      final File file = File('${directory.path}/$identifier.json');
+      text = await file.readAsString();
+    } catch (e) {
+      print("Couldn't read file");
     }
+    return text;
   }
 
   List<Ayahs> translationList;
@@ -567,13 +517,8 @@ class _SurahState extends State<Surah> {
   Future<List<Ayahs>> getTranslation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     identifier = prefs.getString('translationIdentifier') ?? "en.ahmedali";
-    var response =
-        await http.get("http://api.alquran.cloud/v1/quran/$identifier");
-    if (response.statusCode == 200) {
-      return parseUrlJosn(response.body);
-    } else {
-      print('Request failed with status: ${response.statusCode}.');
-    }
+    var translationResponse = await _readIdentifier(identifier);
+    return parseUrlJosn(translationResponse);
   }
 
   FutureBuilder<String> buildSurah(BuildContext context) {
@@ -582,7 +527,6 @@ class _SurahState extends State<Surah> {
       builder: (context, snapshot) {
         if (!snapshot.hasData ||
             snapshot.connectionState != ConnectionState.done)
-          // return CircularProgressIndicator();
           return Center(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -610,6 +554,7 @@ class _SurahState extends State<Surah> {
           translationList.forEach((ayahs) {
             if (element.verse_number == ayahs.numberInSurah) {
               element.translation = ayahs.text;
+              element.translationDirection = translationDir;
             }
           });
         });
@@ -617,6 +562,11 @@ class _SurahState extends State<Surah> {
         return surahAyahs(surahs);
       },
     );
+  }
+
+  Future<String> getTranslationDirection() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('translationDirection') ?? "ltr";
   }
 
   surahAyahs(List<SurahModel> surahs) {
@@ -684,7 +634,8 @@ class _BottomSheetContent extends StatelessWidget {
       child: Container(
         height: 300,
         decoration: BoxDecoration(
-            color: Colors.white,
+            // color: Colors.white,
+            color: Theme.of(context).bottomAppBarColor,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10.0),
                 topRight: Radius.circular(10.0))),
@@ -720,8 +671,6 @@ class _BottomSheetContent extends StatelessWidget {
             onTap: () {
               itemScrollController.jumpTo(
                 index: index,
-                //   duration: Duration(seconds: 2),
-                //curve: Curves.easeInOutCubic,
               );
               Navigator.pop(context);
             },
