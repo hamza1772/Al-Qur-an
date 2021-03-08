@@ -114,19 +114,20 @@ class Ayahs {
   int page;
   int ruku;
   int hizbQuarter;
-  bool sajda;
+  // bool sajda;
 
-  Ayahs(
-      {this.number,
-      this.audio,
-      this.text,
-      this.numberInSurah,
-      this.juz,
-      this.manzil,
-      this.page,
-      this.ruku,
-      this.hizbQuarter,
-      this.sajda});
+  Ayahs({
+    this.number,
+    this.audio,
+    this.text,
+    this.numberInSurah,
+    this.juz,
+    this.manzil,
+    this.page,
+    this.ruku,
+    this.hizbQuarter,
+    // this.sajda
+  });
 
   Ayahs.fromJson(Map<String, dynamic> json) {
     number = json['number'];
@@ -138,7 +139,7 @@ class Ayahs {
     page = json['page'];
     ruku = json['ruku'];
     hizbQuarter = json['hizbQuarter'];
-    sajda = json['sajda'];
+    // sajda = json['sajda'];
   }
 }
 

@@ -27,9 +27,11 @@ class SurahList extends StatelessWidget {
       builder: (BuildContext context, state, Widget child) {
         return Scaffold(
           appBar: AppBar(
+            brightness: Brightness.dark,
             leading: BackButton(),
-            title:
-                state.isSearching ? _buildSearchField(state) : Text("Surahs"),
+            title: state.isSearching
+                ? _buildSearchField(state, context)
+                : Text("Surahs"),
             actions: _buildActions(state, context),
           ),
           body:
@@ -39,10 +41,11 @@ class SurahList extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchField(QuranSettings state) {
+  Widget _buildSearchField(QuranSettings state, BuildContext context) {
     return TextField(
       controller: _searchQueryController,
       autofocus: true,
+      cursorColor: Colors.white,
       decoration: InputDecoration(
         hintText: "Search...",
         border: InputBorder.none,

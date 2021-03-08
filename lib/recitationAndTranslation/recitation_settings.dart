@@ -23,6 +23,7 @@ class RecitationSetting extends StatelessWidget {
         builder: (context, snapshot) {
           return Scaffold(
             appBar: AppBar(
+              brightness: Brightness.dark,
               title: Text("Settings"),
             ),
             body: Consumer<RecitationProvider>(

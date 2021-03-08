@@ -6,6 +6,7 @@ import 'package:al_quran/recitationAndTranslation/recitation_settings.dart';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,6 +30,23 @@ class Surah extends StatefulWidget {
 
   @override
   _SurahState createState() => _SurahState();
+}
+
+List<Ayahs> parseUrlJosn(map) {
+  var response = map['val1'];
+  var surahNumber = map['val2'];
+
+  if (response == null) {
+    return [];
+  }
+  final parsed = json.decode(response);
+  Map<String, dynamic> surahs = new SurahUrlModel.fromJson(parsed, surahNumber)
+      .data
+      .cast<String, dynamic>();
+
+  Surahs value = Surahs.fromJson(surahs);
+
+  return value.ayahs;
 }
 
 class _SurahState extends State<Surah> {
@@ -350,6 +368,7 @@ class _SurahState extends State<Surah> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         flexibleSpace:
             FlexibleSpaceBar(centerTitle: true, title: _surahAppbar(context)),
         actions: [
@@ -472,26 +491,14 @@ class _SurahState extends State<Surah> {
     );
   }
 
-  List<Ayahs> parseUrlJosn(String response) {
-    if (response == null) {
-      return [];
-    }
-    final parsed = json.decode(response);
-    Map<String, dynamic> surahs =
-        new SurahUrlModel.fromJson(parsed, widget.number)
-            .data
-            .cast<String, dynamic>();
-
-    Surahs value = new Surahs.fromJson(surahs);
-
-    return value.ayahs;
-  }
-
   var translationDir = "ltr";
 
   Future<String> getSurah(var context) async {
     var recitationResponse = await _readIdentifier("ar.alafasy");
-    ayahsList = parseUrlJosn(recitationResponse);
+    Map map = Map();
+    map['val1'] = recitationResponse;
+    map['val2'] = widget.number;
+    ayahsList = await compute(parseUrlJosn, map);
     translationDir = await getTranslationDirection();
     translationList = await getTranslation();
     setState(() {});
@@ -517,8 +524,11 @@ class _SurahState extends State<Surah> {
   Future<List<Ayahs>> getTranslation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     identifier = prefs.getString('translationIdentifier') ?? "en.ahmedali";
-    var translationResponse = await _readIdentifier(identifier);
-    return parseUrlJosn(translationResponse);
+    var recitationResponse = await _readIdentifier(identifier);
+    Map map = Map();
+    map['val1'] = recitationResponse;
+    map['val2'] = widget.number;
+    return await compute(parseUrlJosn, map);
   }
 
   FutureBuilder<String> buildSurah(BuildContext context) {

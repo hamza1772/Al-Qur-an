@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:al_quran/duas/dua_list.dart';
+import 'package:al_quran/juz/juz_provider.dart';
 import 'package:al_quran/recitationAndTranslation/recitation_provider.dart';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<RecitationProvider>(
           create: (context) => RecitationProvider(),
         ),
+        ChangeNotifierProvider<JuzProvider>(
+          create: (context) => JuzProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -40,11 +44,11 @@ class MyApp extends StatelessWidget {
           accentColor: Colors.white,
         ),
         theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            selectionHandleColor: Colors.white70,
+          ),
           brightness: Brightness.light,
           primarySwatch: Colors.green,
-          // This makes the visual density adapt to the platform that you run
-          // the app on. For desktop platforms, the controls will be smaller and
-          // closer together (more dense) than on mobile platforms.
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: SplashScreen(),
@@ -87,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         title: Text('Al-Qur\'an'),
       ),
       body: SingleChildScrollView(

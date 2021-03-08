@@ -16,6 +16,7 @@ class _SettingsState extends State<Settings> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         title: Text('Settings'),
       ),
       body: SingleChildScrollView(
