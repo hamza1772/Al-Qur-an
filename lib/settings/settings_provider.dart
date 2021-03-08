@@ -1,3 +1,4 @@
+import 'package:al_quran/surahs/surahs_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class QuranSettings with ChangeNotifier {
@@ -47,6 +48,37 @@ class QuranSettings with ChangeNotifier {
 
   set setTranslationFontSize(double value) {
     _translationFontSize = value;
+    notifyListeners();
+  }
+
+  bool _isSearching = false;
+
+  bool get isSearching => _isSearching;
+
+  set setIsSearching(bool value) {
+    _isSearching = value;
+    notifyListeners();
+  }
+
+  List<SurahsModel> _surahsList = [];
+
+  List<SurahsModel> get getSurahsModelList => _surahsList;
+
+  set setSurahsModelList(List<SurahsModel> value) {
+    _surahsList = value;
+  }
+
+  List<SurahsModel> _searchResult = [];
+
+  List<SurahsModel> get getSearchResult => _searchResult;
+
+  void clearSearchResult() {
+    _searchResult.clear();
+    notifyListeners();
+  }
+
+  void setSearchResult(SurahsModel value) {
+    _searchResult.add(value);
     notifyListeners();
   }
 }
