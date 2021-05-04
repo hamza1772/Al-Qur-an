@@ -197,7 +197,10 @@ class RecitationSetting extends StatelessWidget {
   }
 
   _fileAlreadyDownloaded(String identifier) async {
-    final Directory directory = await getExternalStorageDirectory();
+    final Directory directory = Platform.isIOS
+        ? await getLibraryDirectory()
+        : await getExternalStorageDirectory();
+    // final Directory directory = await getExternalStorageDirectory();
     final File file = File('${directory.path}/$identifier.json');
     return await file.exists();
   }
@@ -208,7 +211,10 @@ class RecitationSetting extends StatelessWidget {
       var response =
           await http.get("http://api.alquran.cloud/v1/quran/$identifier");
       if (response.statusCode == 200) {
-        final Directory directory = await getExternalStorageDirectory();
+        // final Directory directory = await getExternalStorageDirectory();
+        final Directory directory = Platform.isIOS
+            ? await getLibraryDirectory()
+            : await getExternalStorageDirectory();
         final File file = File('${directory.path}/$identifier.json');
         await file.writeAsString(response.body);
         state.setLoadingState = false;

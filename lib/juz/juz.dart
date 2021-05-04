@@ -124,7 +124,10 @@ class Juz extends StatelessWidget {
   Future<String> _readIdentifier(String identifier) async {
     String text;
     try {
-      final Directory directory = await getExternalStorageDirectory();
+      // final Directory directory = await getExternalStorageDirectory();
+      final Directory directory = Platform.isIOS
+          ? await getLibraryDirectory()
+          : await getExternalStorageDirectory();
       final File file = File('${directory.path}/$identifier.json');
       text = await file.readAsString();
     } catch (e) {

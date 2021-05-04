@@ -5,13 +5,12 @@ import 'package:al_quran/duas/dua_list.dart';
 import 'package:al_quran/juz/juz_provider.dart';
 import 'package:al_quran/recitationAndTranslation/recitation_provider.dart';
 import 'package:al_quran/settings/settings_provider.dart';
+import 'package:al_quran/surahs/surah_list.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as httpClient;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'file:///E:/FlutterProjects/Al-Qur-an/lib/surahs/surah_list.dart';
 
 import 'juz/juz_list.dart';
 
@@ -77,8 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     state.setArFontSize = prefs.getDouble('arFontSize') ?? 22;
     state.setTranslationFontSize = prefs.getDouble('translationFontSize') ?? 14;
     state.setPaperTheme = prefs.getString('paperTheme') ?? null;
-    provider.setTranslationIdentifier =
-        prefs.getString('translationIdentifier') ?? "en.ahmedali";
+    provider.setTranslationIdentifier = prefs.getString('translationIdentifier') ?? "en.ahmedali";
   }
 
   @override
@@ -113,14 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   _homepage_widgets(
                     name: 'Surahs',
                     asset: 'assets/surahs.png',
-                    ontap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SurahList())),
+                    ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SurahList())),
                   ),
                   _homepage_widgets(
                     name: 'Juz',
                     asset: 'assets/juz.png',
-                    ontap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => JuzList())),
+                    ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => JuzList())),
                   ),
 //TODO
 //                  _homepage_widgets(
@@ -134,8 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _homepage_widgets(
                     name: 'Duas',
                     asset: 'assets/kid_dua.png',
-                    ontap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => DuaList())),
+                    ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DuaList())),
                   ),
                   SizedBox(
                     height: 140.0,
@@ -149,8 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  GestureDetector _homepage_widgets(
-      {String name, String asset, Function ontap}) {
+  GestureDetector _homepage_widgets({String name, String asset, Function ontap}) {
     return GestureDetector(
       onTap: () => ontap(),
       child: Padding(
@@ -169,10 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   name,
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
               Padding(
@@ -248,8 +239,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future _fileAlreadyDownloaded(String identifier) async {
-    final Directory directory = await getExternalStorageDirectory();
+    final Directory directory = Platform.isIOS ? await getLibraryDirectory() : await getExternalStorageDirectory();
     final File file = File('${directory.path}/$identifier.json');
+    print("file exist: ${file.exists()}, ${file.path}");
     return await file.exists();
   }
 
@@ -258,10 +250,18 @@ class _SplashScreenState extends State<SplashScreen> {
       setState(() {
         fileLoading = true;
       });
-      var response =
-          await http.get("http://api.alquran.cloud/v1/quran/$identifier");
+      var response;
+      try {
+        response = await httpClient.get(Uri.parse("http://api.alquran.cloud/v1/quran/$identifier"));
+
+        final client = new HttpClient();
+        client.connectionTimeout = const Duration(seconds: 10);
+
+      } catch (e) {
+        print("Error: $e");
+      }
       if (response.statusCode == 200) {
-        final Directory directory = await getExternalStorageDirectory();
+        final Directory directory = Platform.isIOS ? await getLibraryDirectory() : await getExternalStorageDirectory();
         final File file = File('${directory.path}/$identifier.json');
         return await file.writeAsString(response.body);
       } else {
@@ -274,9 +274,7 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() {
       fileLoading = false;
     });
-    Timer(
-        Duration(seconds: 2),
-        () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => MyHomePage())));
+    Timer(Duration(seconds: 2),
+        () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => MyHomePage())));
   }
 }
