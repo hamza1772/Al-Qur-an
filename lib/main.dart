@@ -250,6 +250,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final Directory directory = Platform.isIOS
         ? await getLibraryDirectory()
         : await getExternalStorageDirectory();
+
     final File file = File('${directory.path}/$identifier.json');
     print("file exist: ${file.exists()}, ${file.path}");
     return await file.exists();
@@ -274,6 +275,7 @@ class _SplashScreenState extends State<SplashScreen> {
         final Directory directory = Platform.isIOS
             ? await getLibraryDirectory()
             : await getExternalStorageDirectory();
+
         final File file = File('${directory.path}/$identifier.json');
         return await file.writeAsString(response.body);
       } else {
