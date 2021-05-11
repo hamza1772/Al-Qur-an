@@ -23,6 +23,7 @@ class DuaList extends StatelessWidget {
       builder: (context, state, child) {
         return Scaffold(
           appBar: AppBar(
+            brightness: Brightness.dark,
             title: Text(
               'Duas',
               style: state.translationFont != null

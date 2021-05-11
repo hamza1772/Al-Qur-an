@@ -16,6 +16,7 @@ class _SettingsState extends State<Settings> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         title: Text('Settings'),
       ),
       body: SingleChildScrollView(
@@ -23,7 +24,7 @@ class _SettingsState extends State<Settings> {
           child: Container(
             width: size.width,
             height: size.height,
-            color: Colors.white,
+            // color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Consumer<QuranSettings>(
@@ -33,9 +34,15 @@ class _SettingsState extends State<Settings> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _showTranslation(state),
+                        _divider(),
+                        // _enableDarkMode(state, context),
+                        // _divider(),
                         _quranFontsBoxes(state),
+                        _divider(),
                         _translationFontsBoxes(state),
+                        _divider(),
                         _changeFontSize(state),
+                        _divider(),
                         _quranThemesBoxes(state),
                         SizedBox(
                           height: 100.0,
@@ -52,6 +59,12 @@ class _SettingsState extends State<Settings> {
     );
   }
 
+  Divider _divider() {
+    return Divider(
+      thickness: 2,
+    );
+  }
+
   Column _changeFontSize(QuranSettings state) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -59,6 +72,7 @@ class _SettingsState extends State<Settings> {
       children: [
         _settingHeaders('Quran font-size'),
         _arFontSize(state),
+        _divider(),
         _settingHeaders('Translation font-size'),
         _translationFontSize(state)
       ],
@@ -212,6 +226,25 @@ class _SettingsState extends State<Settings> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  bool _checkIfDarkModeEnabled() {
+    final ThemeData theme = Theme.of(context);
+    return theme.brightness == Brightness.dark;
+  }
+
+  _enableDarkMode(QuranSettings state, BuildContext context) {
+    return Row(
+      children: [
+        _settingHeaders('Dark Mode'),
+        Checkbox(
+            value: _checkIfDarkModeEnabled(),
+            onChanged: (show) async {
+              state.setShowTranslation = show;
+              await setShowTranslation(show);
+            })
       ],
     );
   }

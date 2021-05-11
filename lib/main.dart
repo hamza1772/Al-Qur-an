@@ -1,7 +1,14 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:al_quran/duas/dua_list.dart';
+import 'package:al_quran/juz/juz_provider.dart';
+import 'package:al_quran/recitationAndTranslation/recitation_provider.dart';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_list.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as httpClient;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,18 +22,35 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => QuranSettings(),
+    return MultiProvider(
+      // create: (context) => QuranSettings(),
+      providers: [
+        ChangeNotifierProvider<QuranSettings>(
+          create: (context) => QuranSettings(),
+        ),
+        ChangeNotifierProvider<RecitationProvider>(
+          create: (context) => RecitationProvider(),
+        ),
+        ChangeNotifierProvider<JuzProvider>(
+          create: (context) => JuzProvider(),
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.system,
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          accentColor: Colors.white,
+        ),
         theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            selectionHandleColor: Colors.white70,
+          ),
+          brightness: Brightness.light,
           primarySwatch: Colors.green,
-          // This makes the visual density adapt to the platform that you run
-          // the app on. For desktop platforms, the controls will be smaller and
-          // closer together (more dense) than on mobile platforms.
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MyHomePage(),
+        home: SplashScreen(),
       ),
     );
   }
@@ -44,6 +68,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   _getUserSettings() async {
     var state = Provider.of<QuranSettings>(context, listen: false);
+    var provider = Provider.of<RecitationProvider>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     state.setShowTranslation = prefs.getBool('showTranslation') ?? true;
     state.setArFont = prefs.getString('QuranFont') ?? 'uthmani';
@@ -51,6 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
     state.setArFontSize = prefs.getDouble('arFontSize') ?? 22;
     state.setTranslationFontSize = prefs.getDouble('translationFontSize') ?? 14;
     state.setPaperTheme = prefs.getString('paperTheme') ?? null;
+    provider.setTranslationIdentifier =
+        prefs.getString('translationIdentifier') ?? "en.ahmedali";
   }
 
   @override
@@ -63,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         title: Text('Al-Qur\'an'),
       ),
       body: SingleChildScrollView(
@@ -73,9 +101,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   Center(
-                    child: Image(
-                      image: AssetImage('assets/quran.png'),
-                      height: 300,
+                    child: Hero(
+                      tag: "logo",
+                      child: Image(
+                        image: AssetImage('assets/quran.png'),
+                        height: 300,
+                      ),
                     ),
                   ),
                   _homepage_widgets(
@@ -126,7 +157,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           height: 100.0,
           decoration: BoxDecoration(
-            color: Colors.green,
+            // color: Colors.green,
+            color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Row(
@@ -151,5 +183,112 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  bool fileLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _waitFunction();
+    // _fileAlreadyDownloaded("ar.alafasy");
+    // _fileAlreadyDownloaded("en.ahmedali");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: Center(
+          child: Hero(
+            tag: "logo",
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image(
+                  image: AssetImage('assets/quran.png'),
+                  height: 300,
+                ),
+                Text(
+                  "Al-Qur-an",
+                  style: TextStyle(fontSize: 24),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ),
+                Visibility(
+                  visible: fileLoading,
+                  child: Text(
+                    "Getting files ready. Please wait",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _waitFunction() async {
+    await downloadTranslation("ar.alafasy");
+    await downloadTranslation("en.ahmedali");
+    openHomeScreen();
+  }
+
+  Future _fileAlreadyDownloaded(String identifier) async {
+    final Directory directory = Platform.isIOS
+        ? await getLibraryDirectory()
+        : await getExternalStorageDirectory();
+    final File file = File('${directory.path}/$identifier.json');
+    print("file exist: ${file.exists()}, ${file.path}");
+    return await file.exists();
+  }
+
+  Future<File> downloadTranslation(String identifier) async {
+    if (!await _fileAlreadyDownloaded(identifier)) {
+      setState(() {
+        fileLoading = true;
+      });
+      var response;
+      try {
+        response = await httpClient
+            .get(Uri.parse("http://api.alquran.cloud/v1/quran/$identifier"));
+
+        final client = new HttpClient();
+        client.connectionTimeout = const Duration(seconds: 10);
+      } catch (e) {
+        print("Error: $e");
+      }
+      if (response.statusCode == 200) {
+        final Directory directory = Platform.isIOS
+            ? await getLibraryDirectory()
+            : await getExternalStorageDirectory();
+        final File file = File('${directory.path}/$identifier.json');
+        return await file.writeAsString(response.body);
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+      }
+    }
+  }
+
+  openHomeScreen() {
+    setState(() {
+      fileLoading = false;
+    });
+    Timer(
+        Duration(seconds: 2),
+        () => Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (BuildContext context) => MyHomePage())));
   }
 }

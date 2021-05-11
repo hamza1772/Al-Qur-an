@@ -22,6 +22,7 @@ class JuzList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         title: Text('Juz'),
       ),
       body: Center(

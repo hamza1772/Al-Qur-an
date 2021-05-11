@@ -1,3 +1,4 @@
+import 'package:al_quran/recitationAndTranslation/recitation_settings.dart';
 import 'package:al_quran/settings/settings.dart';
 import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_model.dart';
@@ -11,6 +12,7 @@ Padding tileDivider() {
     padding: const EdgeInsets.symmetric(horizontal: 10.0),
     child: Divider(
       thickness: 2.0,
+      // thikness
     ),
   );
 }
@@ -77,7 +79,15 @@ ayahTlle(int index, List<SurahModel> surahs) {
                       style: state.translationFont != null
                           ? GoogleFonts.getFont(state.translationFont)
                               .copyWith(fontSize: state.translationFontSize)
-                          : TextStyle(fontSize: state.translationFontSize),
+                          : TextStyle(
+                              fontSize: state.translationFontSize,
+                            ),
+                      textDirection: surahs[index].translationDirection == "rtl"
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      /*textDirection: getTranslationDirection() == "rtl"
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,*/
                     )
                   : SizedBox.shrink(),
         ),
@@ -166,6 +176,18 @@ IconButton settingsNav(BuildContext context) {
       context,
       MaterialPageRoute(
         builder: (context) => Settings(),
+      ),
+    ),
+  );
+}
+
+IconButton recitationTranslationNav(BuildContext context) {
+  return IconButton(
+    icon: Icon(Icons.menu_book_rounded),
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RecitationSetting(),
       ),
     ),
   );
