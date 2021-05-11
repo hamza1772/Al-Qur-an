@@ -264,7 +264,7 @@ class _SplashScreenState extends State<SplashScreen> {
       var response;
       try {
         response = await httpClient
-            .get(Uri.parse("http://api.alquran.cloud/v1/quran/$identifier"));
+            .get(Uri.parse("https://api.alquran.cloud/v1/quran/$identifier"));
 
         final client = new HttpClient();
         client.connectionTimeout = const Duration(seconds: 10);
