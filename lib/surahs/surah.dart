@@ -40,9 +40,7 @@ List<Ayahs> parseUrlJosn(map) {
     return [];
   }
   final parsed = json.decode(response);
-  Map<String, dynamic> surahs = new SurahUrlModel.fromJson(parsed, surahNumber)
-      .data
-      .cast<String, dynamic>();
+  Map<String, dynamic> surahs = new SurahUrlModel.fromJson(parsed, surahNumber).data.cast<String, dynamic>();
 
   Surahs value = Surahs.fromJson(surahs);
 
@@ -163,14 +161,12 @@ class _SurahState extends State<Surah> {
                     child: Slider(
                       onChanged: (v) {
                         final Position = v * _duration.inMilliseconds;
-                        _audioPlayer
-                            .seek(Duration(milliseconds: Position.round()));
+                        _audioPlayer.seek(Duration(milliseconds: Position.round()));
                       },
                       value: (_position != null &&
                               _duration != null &&
                               _position.inMilliseconds > 0 &&
-                              _position.inMilliseconds <
-                                  _duration.inMilliseconds)
+                              _position.inMilliseconds < _duration.inMilliseconds)
                           ? _position.inMilliseconds / _duration.inMilliseconds
                           : 0.0,
                     ),
@@ -212,13 +208,11 @@ class _SurahState extends State<Surah> {
       }
     });
 
-    _positionSubscription =
-        _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
-              _position = p;
-            }));
+    _positionSubscription = _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
+          _position = p;
+        }));
 
-    _playerCompleteSubscription =
-        _audioPlayer.onPlayerCompletion.listen((event) {
+    _playerCompleteSubscription = _audioPlayer.onPlayerCompletion.listen((event) {
       _onComplete();
       setState(() {
         _position = _duration;
@@ -234,8 +228,7 @@ class _SurahState extends State<Surah> {
       });
     });
 
-    _playerControlCommandSubscription =
-        _audioPlayer.onPlayerCommand.listen((command) {
+    _playerControlCommandSubscription = _audioPlayer.onPlayerCommand.listen((command) {
       print('command');
     });
 
@@ -274,8 +267,7 @@ class _SurahState extends State<Surah> {
                 _position.inMilliseconds < _duration.inMilliseconds)
             ? _position
             : null;
-        final result = await _audioPlayer.play(ayahsList[currentIndex].audio,
-            position: playPosition);
+        final result = await _audioPlayer.play(ayahsList[currentIndex].audio.replaceFirst("https","http"), position: playPosition);
 
         if (result == 1) setState(() => _playerState = PlayerState.playing);
 
@@ -301,8 +293,7 @@ class _SurahState extends State<Surah> {
                 _position.inMilliseconds < _duration.inMilliseconds)
             ? _position
             : null;
-        final result = await _audioPlayer.play(ayahsList[currentIndex].audio,
-            position: playPosition);
+        final result = await _audioPlayer.play(ayahsList[currentIndex].audio.replaceFirst("https","http"), position: playPosition);
 
         if (result == 1) setState(() => _playerState = PlayerState.playing);
 
@@ -319,8 +310,7 @@ class _SurahState extends State<Surah> {
             _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
         : null;
-    final result = await _audioPlayer.play(ayahsList[currentIndex].audio,
-        position: playPosition);
+    final result = await _audioPlayer.play(ayahsList[currentIndex].audio.replaceFirst("https","http"), position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
 
     _audioPlayer.setPlaybackRate(playbackRate: 1.0);
@@ -352,17 +342,14 @@ class _SurahState extends State<Surah> {
 
   final ItemScrollController itemScrollController = ItemScrollController();
 
-  final ItemPositionsListener itemPositionsListener =
-      ItemPositionsListener.create();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
   List<SurahModel> parseJson(String response) {
     if (response == null) {
       return [];
     }
     final parsed = json.decode(response).cast<Map<String, dynamic>>();
-    return parsed
-        .map<SurahModel>((json) => new SurahModel.fromJson(json))
-        .toList();
+    return parsed.map<SurahModel>((json) => new SurahModel.fromJson(json)).toList();
   }
 
   @override
@@ -370,8 +357,7 @@ class _SurahState extends State<Surah> {
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.dark,
-        flexibleSpace:
-            FlexibleSpaceBar(centerTitle: true, title: _surahAppbar(context)),
+        flexibleSpace: FlexibleSpaceBar(centerTitle: true, title: _surahAppbar(context)),
         actions: [
           IconButton(
             icon: Icon(Icons.menu_book_rounded),
@@ -383,8 +369,7 @@ class _SurahState extends State<Surah> {
             ).then((value) async {
               if (identifier != null) {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
-                var variable =
-                    prefs.getString('translationIdentifier') ?? "en.ahmedali";
+                var variable = prefs.getString('translationIdentifier') ?? "en.ahmedali";
                 if (identifier != variable) {
                   setState(() {
                     translationList = null;
@@ -407,10 +392,7 @@ class _SurahState extends State<Surah> {
                     child: buildSurah(context),
                     decoration: state.paperTheme != null
                         ? BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/papers/${state.paperTheme}'),
-                                fit: BoxFit.cover),
+                            image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
                           )
                         : null,
                   ),
@@ -421,10 +403,7 @@ class _SurahState extends State<Surah> {
                     child: PlayerWidget(),
                     decoration: state.paperTheme != null
                         ? BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/papers/${state.paperTheme}'),
-                                fit: BoxFit.cover),
+                            image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
                           )
                         : null,
                   ),
@@ -503,17 +482,14 @@ class _SurahState extends State<Surah> {
     translationDir = await getTranslationDirection();
     translationList = await getTranslation();
     setState(() {});
-    return await DefaultAssetBundle.of(context)
-        .loadString('assets/quran/en.pretty.json');
+    return await DefaultAssetBundle.of(context).loadString('assets/quran/en.pretty.json');
   }
 
   Future<String> _readIdentifier(String identifier) async {
     String text;
     try {
       // final Directory directory = await getExternalStorageDirectory();
-      final Directory directory = Platform.isIOS
-          ? await getLibraryDirectory()
-          : await getExternalStorageDirectory();
+      final Directory directory = Platform.isIOS ? await getLibraryDirectory() : await getExternalStorageDirectory();
       final File file = File('${directory.path}/$identifier.json');
       text = await file.readAsString();
     } catch (e) {
@@ -539,8 +515,7 @@ class _SurahState extends State<Surah> {
     return FutureBuilder(
       future: myFuture,
       builder: (context, snapshot) {
-        if (!snapshot.hasData ||
-            snapshot.connectionState != ConnectionState.done)
+        if (!snapshot.hasData || snapshot.connectionState != ConnectionState.done)
           return Center(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -553,10 +528,8 @@ class _SurahState extends State<Surah> {
             ],
           ));
 
-        List<SurahModel> surahs = parseJson(snapshot.data.toString())
-            .where(
-                (element) => element.surah_number == int.parse(widget.number))
-            .toList();
+        List<SurahModel> surahs =
+            parseJson(snapshot.data.toString()).where((element) => element.surah_number == int.parse(widget.number)).toList();
 
         surahs.forEach((element) {
           ayahsList.forEach((ayahs) {
@@ -589,9 +562,7 @@ class _SurahState extends State<Surah> {
       itemScrollController: itemScrollController,
       itemPositionsListener: itemPositionsListener,
       itemBuilder: (BuildContext context, int index) {
-        return index == 0 &&
-                surahs[index].surah_number != 1 &&
-                surahs[index].surah_number != 9
+        return index == 0 && surahs[index].surah_number != 1 && surahs[index].surah_number != 9
             ? InkWell(
                 onTap: () {
                   currentIndex = index - 1;
@@ -650,9 +621,7 @@ class _BottomSheetContent extends StatelessWidget {
         decoration: BoxDecoration(
             // color: Colors.white,
             color: Theme.of(context).bottomAppBarColor,
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(10.0))),
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
         child: Column(
           children: [
             _bottomSheetHeader(),
@@ -696,18 +665,11 @@ class _BottomSheetContent extends StatelessWidget {
   }
 }
 
-void _showModalBottomSheet(
-    {BuildContext context,
-    String surah,
-    int ayahCount,
-    ItemScrollController itemScrollController}) {
+void _showModalBottomSheet({BuildContext context, String surah, int ayahCount, ItemScrollController itemScrollController}) {
   showModalBottomSheet<void>(
     context: context,
     builder: (context) {
-      return _BottomSheetContent(
-          surah: surah,
-          ayahCount: ayahCount,
-          itemScrollController: itemScrollController);
+      return _BottomSheetContent(surah: surah, ayahCount: ayahCount, itemScrollController: itemScrollController);
     },
   );
 }
