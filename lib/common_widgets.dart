@@ -1,3 +1,4 @@
+import 'package:al_quran/juz/juz_provider.dart';
 import 'package:al_quran/recitationAndTranslation/recitation_settings.dart';
 import 'package:al_quran/settings/settings.dart';
 import 'package:al_quran/settings/settings_provider.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 Padding tileDivider() {
   return Padding(
@@ -32,9 +34,7 @@ ayahNumber(String ayahNum, QuranSettings state) {
           child: Center(
             child: Text(
               ayahNum,
-              style: state.translationFont != null
-                  ? GoogleFonts.getFont(state.translationFont)
-                  : TextStyle(),
+              style: state.translationFont != null ? GoogleFonts.getFont(state.translationFont) : TextStyle(),
             ),
           ),
         ),
@@ -64,32 +64,26 @@ ayahTlle(int index, List<SurahModel> surahs) {
       return Container(
         decoration: state.paperTheme != null
             ? BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/papers/${state.paperTheme}'),
-                    fit: BoxFit.fill),
+                image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.fill),
               )
             : null,
         child: ListTile(
           leading: ayahNumber(surahs[index].verse_number.toString(), state),
           title: ayah(surahs, index, state),
-          subtitle:
-              state.showTranslation == null || state.showTranslation == true
-                  ? Text(
-                      surahs[index].translation,
-                      style: state.translationFont != null
-                          ? GoogleFonts.getFont(state.translationFont)
-                              .copyWith(fontSize: state.translationFontSize)
-                          : TextStyle(
-                              fontSize: state.translationFontSize,
-                            ),
-                      textDirection: surahs[index].translationDirection == "rtl"
-                          ? TextDirection.rtl
-                          : TextDirection.ltr,
-                      /*textDirection: getTranslationDirection() == "rtl"
+          subtitle: state.showTranslation == null || state.showTranslation == true
+              ? Text(
+                  surahs[index].translation,
+                  style: state.translationFont != null
+                      ? GoogleFonts.getFont(state.translationFont).copyWith(fontSize: state.translationFontSize)
+                      : TextStyle(
+                          fontSize: state.translationFontSize,
+                        ),
+                  textDirection: surahs[index].translationDirection == "rtl" ? TextDirection.rtl : TextDirection.ltr,
+                  /*textDirection: getTranslationDirection() == "rtl"
                           ? TextDirection.rtl
                           : TextDirection.ltr,*/
-                    )
-                  : SizedBox.shrink(),
+                )
+              : SizedBox.shrink(),
         ),
       );
     },
@@ -102,9 +96,7 @@ basmalaTile(BuildContext context) {
       return Container(
         decoration: state.paperTheme != null
             ? BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/papers/${state.paperTheme}'),
-                    fit: BoxFit.cover),
+                image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
               )
             : null,
         child: Padding(
@@ -151,21 +143,45 @@ Container surahAndJuzListNumberIcon(int index, QuranSettings state) {
   );
 }
 
-ListView juzAyahs(List<SurahModel> surahs) {
-  return ListView.builder(
-    itemCount: surahs.length,
-//    separatorBuilder: (context, int index) {
-//      return tileDivider();
-//    },
-    itemBuilder: (BuildContext context, int index) {
-      return index == 0 &&
-              surahs[index].surah_number != 1 &&
-              surahs[index].surah_number != 9
-          ? Column(
-              children: [basmalaTile(context), ayahTlle(index, surahs)],
-            )
-          : ayahTlle(index, surahs);
+juzAyahs(
+  List<SurahModel> surahs, ItemScrollController itemScrollController,
+  // JuzProvider state,
+) {
+  return Consumer<JuzProvider>(
+    builder: (context, state, child) {
+      return ScrollablePositionedList.builder(
+        itemCount: surahs.length,
+        itemScrollController: itemScrollController,
+        itemBuilder: (BuildContext context, int index) {
+          return state.getCurrentIndex == index
+              ? Container(
+                  padding: const EdgeInsets.all(5.0),
+                  decoration: BoxDecoration(color: Colors.yellow.withOpacity(0.6)),
+                  child: showJuzAyahs(context, index, surahs,state,itemScrollController))
+              : showJuzAyahs(context, index, surahs,state,itemScrollController);
+        },
+      );
     },
+  );
+}
+
+showJuzAyahs(context, index, surahs,JuzProvider state,itemScrollController) {
+  return InkWell(
+    onTap: () {
+      state.setCurrentIndex = index;
+      state.shouldPlayNext = true;
+      state.logInController = index;
+      itemScrollController.jumpTo(
+        index: index,
+      );
+    },
+    child: Container(
+      child: index == 0 && surahs[index].surah_number != 1 && surahs[index].surah_number != 9
+          ? Column(
+        children: [basmalaTile(context), ayahTlle(index, surahs)],
+      )
+          : ayahTlle(index, surahs),
+    ),
   );
 }
 

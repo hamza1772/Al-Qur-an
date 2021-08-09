@@ -177,7 +177,7 @@ class RecitationSetting extends StatelessWidget {
   }
 
   _getEdition() async {
-    var response = await http.get("https://api.alquran.cloud/v1/edition");
+    var response = await http.get(Uri.parse("https://api.alquran.cloud/v1/edition"));
     if (response.statusCode == 200) {
       return parseUrlJosn(response.body);
     } else {
@@ -209,7 +209,7 @@ class RecitationSetting extends StatelessWidget {
       String identifier, RecitationProvider state, BuildContext context) async {
     if (!await _fileAlreadyDownloaded(identifier)) {
       var response =
-          await http.get("https://api.alquran.cloud/v1/quran/$identifier");
+          await http.get(Uri.parse("https://api.alquran.cloud/v1/quran/$identifier"));
       if (response.statusCode == 200) {
         // final Directory directory = await getExternalStorageDirectory();
         final Directory directory = Platform.isIOS

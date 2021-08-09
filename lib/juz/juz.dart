@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:al_quran/httpService.dart';
 import 'package:al_quran/juz/juz_model.dart';
 import 'package:al_quran/juz/juz_provider.dart';
 import 'package:al_quran/recitationAndTranslation/recitation_settings.dart';
@@ -9,9 +11,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common_widgets.dart';
+import '../player_widget.dart';
+import 'juz_new_model.dart';
 
 List<SurahModel> parseUrlJosn(map) {
   var response = map['val1'];
@@ -30,10 +35,8 @@ List<SurahModel> parseUrlJosn(map) {
   surahList.forEach((surahModel) {
     surahModel.ayahs.forEach((element) {
       if (element.juz == juzNumber) {
-        customList.add(SurahModel(
-            surah_number: surahModel.number,
-            verse_number: element.numberInSurah,
-            translation: element.text));
+        customList
+            .add(SurahModel(surah_number: surahModel.number, verse_number: element.numberInSurah, translation: element.text));
       }
     });
   });
@@ -51,31 +54,46 @@ class Juz extends StatelessWidget {
   final String endVerse;
 
   Juz(
-      {this.startSurah,
+      {Key key,
+      this.startSurah,
       this.endSurah,
       this.startSurahNum,
       this.endSurahNum,
       this.juzNum,
       this.startVerse,
-      this.endVerse});
+      this.endVerse})
+      : super(key: key);
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+
 
   List<SurahModel> parseJosn(String response) {
     if (response == null) {
       return [];
     }
     final parsed = json.decode(response).cast<Map<String, dynamic>>();
-    return parsed
-        .map<SurahModel>((json) => new SurahModel.fromJson(json))
-        .toList();
+    return parsed.map<SurahModel>((json) => new SurahModel.fromJson(json)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    future = getSurah(context);
+
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.dark,
         title: Text('Juz ' + juzNum.toString()),
         actions: [
+          Consumer<JuzProvider>(
+            builder: (_, state, child) {
+              return IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  state.setCurrentIndex = 0;
+                },
+              );
+            },
+          ),
           Consumer<JuzProvider>(
             builder: (_, state, child) {
               return IconButton(
@@ -86,7 +104,7 @@ class Juz extends StatelessWidget {
                     builder: (context) => RecitationSetting(),
                   ),
                 ).then((value) {
-                  state.setFutureValue = getSurah(context);
+                  future = getSurah(context);
                 }),
               );
             },
@@ -96,9 +114,26 @@ class Juz extends StatelessWidget {
       ),
       body: Consumer<JuzProvider>(
         builder: (_, state, child) {
-          state.setFutureValue = getSurah(context);
-          return Center(
-            child: Container(child: buildSurah(context, juzNum, state)),
+          return Column(
+            children: [
+              Flexible(child: Container(child: Center(child: buildSurah(context, juzNum)))),
+              StreamBuilder(
+                stream: controller.stream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  } else {
+                    return PlayerWidget(
+                      audioList: snapshot.data.map<String>((SurahModel e) {
+                        return e.audio;
+                      }).toList(),
+                      state: state,
+                      itemScrollController: itemScrollController,
+                    );
+                  }
+                },
+              ),
+            ],
           );
         },
       ),
@@ -124,10 +159,7 @@ class Juz extends StatelessWidget {
   Future<String> _readIdentifier(String identifier) async {
     String text;
     try {
-      // final Directory directory = await getExternalStorageDirectory();
-      final Directory directory = Platform.isIOS
-          ? await getLibraryDirectory()
-          : await getExternalStorageDirectory();
+      final Directory directory = Platform.isIOS ? await getLibraryDirectory() : await getExternalStorageDirectory();
       final File file = File('${directory.path}/$identifier.json');
       text = await file.readAsString();
     } catch (e) {
@@ -136,31 +168,35 @@ class Juz extends StatelessWidget {
     return text;
   }
 
+  Future<List<NewAyah>> getJuz() async {
+    List<NewAyah> ayahs = await HttpService().getJuzAyah(juzNum);
+    return ayahs;
+  }
+
   Future<dynamic> getSurah(var context) async {
     return Future.wait([
       getTranslationDirection(),
       getTranslation(juzNum),
-      DefaultAssetBundle.of(context).loadString('assets/quran/en.pretty.json')
+      DefaultAssetBundle.of(context).loadString('assets/quran/en.pretty.json'),
+      getJuz()
     ]);
   }
 
-  FutureBuilder<dynamic> buildSurah(
-      BuildContext context, String juzNum, JuzProvider state) {
+  Future future;
+  List<SurahModel> surahs;
+  final controller = StreamController<List<SurahModel>>();
+
+  FutureBuilder<dynamic> buildSurah(BuildContext context, String juzNum) {
     return FutureBuilder(
-      future: state.getFutureValue,
+      future: future,
       builder: (context, snapshot) {
-        if (!snapshot.hasData ||
-            snapshot.connectionState != ConnectionState.done)
-          return CircularProgressIndicator();
-        List<SurahModel> surahs =
-            parseJosn(snapshot.data[2].toString()).where((element) {
+        if (!snapshot.hasData || snapshot.connectionState != ConnectionState.done) return CircularProgressIndicator();
+        surahs = parseJosn(snapshot.data[2].toString()).where((element) {
           if (startSurahNum != endSurahNum) {
             return (element.surah_number == int.parse(startSurahNum) &&
                     element.verse_number >= int.parse(startVerse)) ||
-                element.surah_number > int.parse(startSurahNum) &&
-                    element.surah_number < int.parse(endSurahNum) ||
-                (element.verse_number <= int.parse(endVerse) &&
-                    element.surah_number == int.parse(endSurahNum));
+                element.surah_number > int.parse(startSurahNum) && element.surah_number < int.parse(endSurahNum) ||
+                (element.verse_number <= int.parse(endVerse) && element.surah_number == int.parse(endSurahNum));
           } else {
             return (element.surah_number == int.parse(startSurahNum) &&
                 element.verse_number >= int.parse(startVerse) &&
@@ -168,20 +204,28 @@ class Juz extends StatelessWidget {
           }
         }).toList();
 
-        List<SurahModel> juzSurah = snapshot.data[1];
         var translationDirection = snapshot.data[0];
+        List<SurahModel> juzSurah = snapshot.data[1];
+        List<NewAyah> ayahList = snapshot.data[3];
 
         surahs.forEach((model) {
           juzSurah.forEach((element) {
-            if (element.surah_number == model.surah_number &&
-                element.verse_number == model.verse_number) {
+            if (element.surah_number == model.surah_number && element.verse_number == model.verse_number) {
               model.translation = element.translation;
               model.translationDirection = translationDirection;
             }
           });
+
+          ayahList.forEach((NewAyah element) {
+            if (element.surah.number == model.surah_number && element.numberInSurah == model.verse_number) {
+              model.audio = element.audio;
+            }
+          });
         });
 
-        return juzAyahs(surahs);
+        controller.add(surahs);
+
+        return juzAyahs(surahs, itemScrollController);
       },
     );
   }
