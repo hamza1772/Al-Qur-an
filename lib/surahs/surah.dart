@@ -72,17 +72,9 @@ class _SurahState extends State<Surah> {
 
   get _isPaused => _playerState == PlayerState.PAUSED;
 
-  get _durationText =>
-      _duration
-          ?.toString()
-          ?.split('.')
-          ?.first ?? '';
+  get _durationText => _duration?.toString()?.split('.')?.first ?? '';
 
-  get _positionText =>
-      _position
-          ?.toString()
-          ?.split('.')
-          ?.first ?? '';
+  get _positionText => _position?.toString()?.split('.')?.first ?? '';
 
   // get _isPlayingThroughEarpiece =>
   //     _playingRouteState == PlayingRouteState.earpiece;
@@ -159,8 +151,8 @@ class _SurahState extends State<Surah> {
                   _position != null
                       ? '${_positionText ?? ''}'
                       : _duration != null
-                      ? _durationText
-                      : '',
+                          ? _durationText
+                          : '',
                 ),
                 Expanded(
                   child: SliderTheme(
@@ -173,9 +165,9 @@ class _SurahState extends State<Surah> {
                         _audioPlayer.seek(Duration(milliseconds: Position.round()));
                       },
                       value: (_position != null &&
-                          _duration != null &&
-                          _position.inMilliseconds > 0 &&
-                          _position.inMilliseconds < _duration.inMilliseconds)
+                              _duration != null &&
+                              _position.inMilliseconds > 0 &&
+                              _position.inMilliseconds < _duration.inMilliseconds)
                           ? _position.inMilliseconds / _duration.inMilliseconds
                           : 0.0,
                     ),
@@ -185,8 +177,8 @@ class _SurahState extends State<Surah> {
                   _position != null
                       ? '${_durationText ?? ''}'
                       : _duration != null
-                      ? _durationText
-                      : '',
+                          ? _durationText
+                          : '',
                 ),
               ],
             ),
@@ -217,8 +209,7 @@ class _SurahState extends State<Surah> {
       }
     });
 
-    _positionSubscription = _audioPlayer.onAudioPositionChanged.listen((p) =>
-        setState(() {
+    _positionSubscription = _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
           _position = p;
         }));
 
@@ -272,13 +263,13 @@ class _SurahState extends State<Surah> {
         currentIndex++;
 
         final playPosition = (_position != null &&
-            _duration != null &&
-            _position.inMilliseconds > 0 &&
-            _position.inMilliseconds < _duration.inMilliseconds)
+                _duration != null &&
+                _position.inMilliseconds > 0 &&
+                _position.inMilliseconds < _duration.inMilliseconds)
             ? _position
             : null;
-        final result = await _audioPlayer.play(
-            ayahsList[currentIndex].audio.replaceFirst("https", "http"), position: playPosition);
+        final result =
+            await _audioPlayer.play(ayahsList[currentIndex].audio.replaceFirst("https", "http"), position: playPosition);
 
         if (result == 1) setState(() => _playerState = PlayerState.PLAYING);
 
@@ -299,13 +290,13 @@ class _SurahState extends State<Surah> {
         currentIndex--;
 
         final playPosition = (_position != null &&
-            _duration != null &&
-            _position.inMilliseconds > 0 &&
-            _position.inMilliseconds < _duration.inMilliseconds)
+                _duration != null &&
+                _position.inMilliseconds > 0 &&
+                _position.inMilliseconds < _duration.inMilliseconds)
             ? _position
             : null;
-        final result = await _audioPlayer.play(
-            ayahsList[currentIndex].audio.replaceFirst("https", "http"), position: playPosition);
+        final result =
+            await _audioPlayer.play(ayahsList[currentIndex].audio.replaceFirst("https", "http"), position: playPosition);
 
         if (result == 1) setState(() => _playerState = PlayerState.PLAYING);
 
@@ -317,9 +308,9 @@ class _SurahState extends State<Surah> {
 
   Future<int> _play() async {
     final playPosition = (_position != null &&
-        _duration != null &&
-        _position.inMilliseconds > 0 &&
-        _position.inMilliseconds < _duration.inMilliseconds)
+            _duration != null &&
+            _position.inMilliseconds > 0 &&
+            _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
         : null;
     final result = await _audioPlayer.play(ayahsList[currentIndex].audio.replaceFirst("https", "http"), position: playPosition);
@@ -373,24 +364,23 @@ class _SurahState extends State<Surah> {
         actions: [
           IconButton(
             icon: Icon(Icons.menu_book_rounded),
-            onPressed: () =>
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RecitationSetting(),
-                  ),
-                ).then((value) async {
-                  if (identifier != null) {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    var variable = prefs.getString('translationIdentifier') ?? "en.ahmedali";
-                    if (identifier != variable) {
-                      setState(() {
-                        translationList = null;
-                        myFuture = getSurah(context);
-                      });
-                    }
-                  }
-                }),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecitationSetting(),
+              ),
+            ).then((value) async {
+              if (identifier != null) {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                var variable = prefs.getString('translationIdentifier') ?? "en.ahmedali";
+                if (identifier != variable) {
+                  setState(() {
+                    translationList = null;
+                    myFuture = getSurah(context);
+                  });
+                }
+              }
+            }),
           ),
           settingsNav(context),
         ],
@@ -398,6 +388,7 @@ class _SurahState extends State<Surah> {
       body: Center(
         child: Consumer<QuranSettings>(
           builder: (_, state, child) {
+            state.setSurahName = widget.surahEn;
             return Column(
               children: [
                 Expanded(
@@ -405,8 +396,8 @@ class _SurahState extends State<Surah> {
                     child: buildSurah(context),
                     decoration: state.paperTheme != null
                         ? BoxDecoration(
-                      image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
-                    )
+                            image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
+                          )
                         : null,
                   ),
                 ),
@@ -416,8 +407,8 @@ class _SurahState extends State<Surah> {
                     child: PlayerWidget(),
                     decoration: state.paperTheme != null
                         ? BoxDecoration(
-                      image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
-                    )
+                            image: DecorationImage(image: AssetImage('assets/papers/${state.paperTheme}'), fit: BoxFit.cover),
+                          )
                         : null,
                   ),
                 ),
@@ -531,18 +522,18 @@ class _SurahState extends State<Surah> {
         if (!snapshot.hasData || snapshot.connectionState != ConnectionState.done)
           return Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("Loading ..."),
-                  )
-                ],
-              ));
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Loading ..."),
+              )
+            ],
+          ));
 
         List<SurahModel> surahs =
-        parseJson(snapshot.data.toString()).where((element) => element.surah_number == int.parse(widget.number)).toList();
+            parseJson(snapshot.data.toString()).where((element) => element.surah_number == int.parse(widget.number)).toList();
 
         surahs.forEach((element) {
           ayahsList.forEach((ayahs) {
@@ -577,42 +568,39 @@ class _SurahState extends State<Surah> {
       itemBuilder: (BuildContext context, int index) {
         return index == 0 && surahs[index].surah_number != 1 && surahs[index].surah_number != 9
             ? InkWell(
-          onTap: () {
-            currentIndex = index - 1;
-            _next();
-          },
-          child: Column(
-            children: [
-              basmalaTile(context),
-              currentIndex == index
-                  ? Container(
-                // margin: const EdgeInsets.all(10.0),
-                padding: const EdgeInsets.all(5.0),
-                decoration: BoxDecoration(
-                  // border: Border.all(color: Colors.blueAccent)
-                    color: Colors.yellow.withOpacity(0.6)),
-                child: ayahTlle(index, surahs),
+                onTap: () {
+                  currentIndex = index - 1;
+                  _next();
+                },
+                child: Column(
+                  children: [
+                    basmalaTile(context),
+                    currentIndex == index
+                        ? Container(
+                            // margin: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(
+                                // border: Border.all(color: Colors.blueAccent)
+                                color: Colors.yellow.withOpacity(0.6)),
+                            child: ayahTlle(index, surahs, context),
+                          )
+                        : ayahTlle(index, surahs, context)
+                  ],
+                ),
               )
-                  : ayahTlle(index, surahs)
-            ],
-          ),
-        )
             : InkWell(
-          onTap: () {
-            currentIndex = index - 1;
-            _next();
-          },
-          child: currentIndex == index
-              ? Container(
-            // margin: const EdgeInsets.all(10.0),
-            padding: const EdgeInsets.all(5.0),
-            decoration: BoxDecoration(
-              // border: Border.all(color: Colors.blueAccent)
-                color: Colors.yellow.withOpacity(0.6)),
-            child: ayahTlle(index, surahs),
-          )
-              : ayahTlle(index, surahs),
-        );
+                onTap: () {
+                  currentIndex = index - 1;
+                  _next();
+                },
+                child: currentIndex == index
+                    ? Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(color: Colors.yellow.withOpacity(0.6)),
+                        child: ayahTlle(index, surahs, context),
+                      )
+                    : ayahTlle(index, surahs, context),
+              );
       },
     );
   }
@@ -632,10 +620,8 @@ class _BottomSheetContent extends StatelessWidget {
       child: Container(
         height: 300,
         decoration: BoxDecoration(
-          // color: Colors.white,
-            color: Theme
-                .of(context)
-                .bottomAppBarColor,
+            // color: Colors.white,
+            color: Theme.of(context).bottomAppBarColor,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
         child: Column(
           children: [

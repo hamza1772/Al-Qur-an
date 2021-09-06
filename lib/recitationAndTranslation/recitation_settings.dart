@@ -65,13 +65,6 @@ class RecitationSetting extends StatelessWidget {
                                   .toList();
 
                               list.removeWhere((element) => element == null);
-
-                              /*List<String> list = snapshot.data
-                                  .map<String>((languageData) =>
-                                      languageData.language.toString())
-                                  .toSet()
-                                  .toList();*/
-
                               return DropdownButton<String>(
                                   hint: Text("Please choose an option"),
                                   isExpanded: true,
@@ -273,7 +266,8 @@ class ProgressHUD extends StatelessWidget {
                 ),
               )
             ],
-          ))
+          )
+          )
         ],
       );
       widgetList.add(modal);

@@ -5,9 +5,11 @@ import 'package:al_quran/settings/settings_provider.dart';
 import 'package:al_quran/surahs/surah_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:share/share.dart';
 
 Padding tileDivider() {
   return Padding(
@@ -58,9 +60,14 @@ Padding ayah(List<SurahModel> surahs, int index, QuranSettings state) {
   );
 }
 
-ayahTlle(int index, List<SurahModel> surahs) {
+ayahTlle(int index, List<SurahModel> surahs, context) {
   return Consumer<QuranSettings>(
     builder: (_, state, child) {
+      var text =
+          "Quote from the Holy Qur'an: ${state.surahName} (${surahs[index].surah_number}:${surahs[index].verse_number})\n\n" +
+              surahs[index].text +
+              "\n\n" +
+              surahs[index].translation;
       return Container(
         decoration: state.paperTheme != null
             ? BoxDecoration(
@@ -79,11 +86,23 @@ ayahTlle(int index, List<SurahModel> surahs) {
                           fontSize: state.translationFontSize,
                         ),
                   textDirection: surahs[index].translationDirection == "rtl" ? TextDirection.rtl : TextDirection.ltr,
-                  /*textDirection: getTranslationDirection() == "rtl"
-                          ? TextDirection.rtl
-                          : TextDirection.ltr,*/
                 )
               : SizedBox.shrink(),
+          trailing: Column(
+            children: [
+              InkWell(
+                  onTap: () {
+                    Clipboard.setData(new ClipboardData(text: text)).then((_) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Copied")));
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(Icons.copy),
+                  )),
+              InkWell(onTap: () => Share.share(text), child: Icon(Icons.share)),
+            ],
+          ),
         ),
       );
     },
@@ -144,7 +163,8 @@ Container surahAndJuzListNumberIcon(int index, QuranSettings state) {
 }
 
 juzAyahs(
-  List<SurahModel> surahs, ItemScrollController itemScrollController,
+  List<SurahModel> surahs,
+  ItemScrollController itemScrollController,
   // JuzProvider state,
 ) {
   return Consumer<JuzProvider>(
@@ -157,15 +177,15 @@ juzAyahs(
               ? Container(
                   padding: const EdgeInsets.all(5.0),
                   decoration: BoxDecoration(color: Colors.yellow.withOpacity(0.6)),
-                  child: showJuzAyahs(context, index, surahs,state,itemScrollController))
-              : showJuzAyahs(context, index, surahs,state,itemScrollController);
+                  child: showJuzAyahs(context, index, surahs, state, itemScrollController))
+              : showJuzAyahs(context, index, surahs, state, itemScrollController);
         },
       );
     },
   );
 }
 
-showJuzAyahs(context, index, surahs,JuzProvider state,itemScrollController) {
+showJuzAyahs(context, index, surahs, JuzProvider state, itemScrollController) {
   return InkWell(
     onTap: () {
       state.setCurrentIndex = index;
@@ -178,9 +198,9 @@ showJuzAyahs(context, index, surahs,JuzProvider state,itemScrollController) {
     child: Container(
       child: index == 0 && surahs[index].surah_number != 1 && surahs[index].surah_number != 9
           ? Column(
-        children: [basmalaTile(context), ayahTlle(index, surahs)],
-      )
-          : ayahTlle(index, surahs),
+              children: [basmalaTile(context), ayahTlle(index, surahs, context)],
+            )
+          : ayahTlle(index, surahs, context),
     ),
   );
 }

@@ -8,7 +8,13 @@ class QuranSettings with ChangeNotifier {
   double _arFontSize;
   double _translationFontSize;
   String _paperTheme;
+  String _surahName;
 
+  String get surahName => _surahName;
+
+  set setSurahName(String value) {
+    _surahName = value;
+  }
   String get paperTheme => _paperTheme;
 
   set setPaperTheme(String value) {
